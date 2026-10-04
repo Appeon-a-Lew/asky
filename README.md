@@ -136,6 +136,10 @@ With `ASKY_SECRET` set, the app is gated (`src/proxy.ts`): a signed `asky_ws` co
 - Fail-closed: inside the gated server a request without a workspace never reaches the main data. Without `ASKY_SECRET` (local development, scripts) everything is the main workspace, as before.
 - `ASKY_URL=… ASKY_EVENT_CODE=… pnpm e2e` runs the full UI test as an audience member.
 
+## Pitch deck (3 min)
+
+`/pitch` (public) — seven full-screen slides built from the landing page's own animations and the narrated demo video (`public/pitch-media/`), then backup slides for questions. ← → move, **F** fullscreen, **N** speaker notes with the per-slide time slots and a running clock, **T** restarts the clock; the slide number lives in the URL hash.
+
 ## Demo script (≈ 8 min)
 
 1. **Interview** → *Import sample* — German recording → transcript → 6 new pages, 3 updated (stretch goal: explained in German, taught in English).
