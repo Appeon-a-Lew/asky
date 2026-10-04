@@ -7,7 +7,7 @@ import { signWorkspace, WS_COOKIE } from "@/lib/wscookie";
 
 // Public: how people get a workspace. Not wrapped in withWorkspace — this is
 // where the workspace cookie is made.
-//   POST { code }        audience: the event code → a new private workspace
+//   POST {}              audience: a new private workspace (open while ASKY_EVENT_CODE is set)
 //   POST { presenter }   presenter password → the "main" workspace
 //   GET                  who am I (workspace, expiry, budget)
 //   DELETE               leave (drop the cookie)
@@ -23,14 +23,15 @@ const same = (a: string, b: string) => {
 export async function POST(req: Request) {
   const secret = process.env.ASKY_SECRET;
   if (!isGated() || !secret) return Response.json({ ok: true, redirect: "/home", note: "open mode: no workspaces" });
-  // slow down guessing: 10 tries per 10 minutes per address
+  // slow down password guessing and workspace churn: 30 tries per 10 minutes per address
+  // (venues share one address; MAX_WORKSPACES is the real cap)
   const ip = (req.headers.get("x-forwarded-for") ?? "local").split(",")[0].trim();
   const now = Date.now();
   const recent = (attempts.get(ip) ?? []).filter((t) => now - t < 600_000);
-  if (recent.length >= 10) return Response.json({ error: "Too many tries — wait a few minutes" }, { status: 429 });
+  if (recent.length >= 30) return Response.json({ error: "Too many tries — wait a few minutes" }, { status: 429 });
   attempts.set(ip, [...recent, now]);
 
-  const b = (await req.json().catch(() => ({}))) as { code?: string; presenter?: string };
+  const b = (await req.json().catch(() => ({}))) as { presenter?: string };
   let ws: string;
   let expiresAt: number;
   if (b.presenter !== undefined) {
@@ -39,9 +40,8 @@ export async function POST(req: Request) {
     ws = MAIN;
     expiresAt = now + PRESENTER_TTL;
   } else {
-    const code = process.env.ASKY_EVENT_CODE;
-    if (!code) return Response.json({ error: "The audience demo is closed right now" }, { status: 403 });
-    if (!same((b.code ?? "").trim().toLowerCase(), code.trim().toLowerCase())) return Response.json({ error: "That code doesn't match — check the slide" }, { status: 403 });
+    // no code to type: ASKY_EVENT_CODE only switches the audience demo on (unset = closed)
+    if (!process.env.ASKY_EVENT_CODE) return Response.json({ error: "The audience demo is closed right now" }, { status: 403 });
     try {
       ({ id: ws, expiresAt } = createVisitorWorkspace());
     } catch (e) {
