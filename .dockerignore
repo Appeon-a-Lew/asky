@@ -1,0 +1,10 @@
+.git
+node_modules
+.next
+data
+e2e-shots
+.env*
+!.env.example
+*.pdf
+deploy
+.github

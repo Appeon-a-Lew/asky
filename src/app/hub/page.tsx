@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Card, PageStatus } from "@/components/hub";
+import { Card, PageHeader, PageStatus } from "@/components/hub";
+import { Icon } from "@/components/icons";
 import { ago, freshDB, personName } from "@/lib/fresh";
 
 export default async function HubOverview() {
@@ -13,26 +14,29 @@ export default async function HubOverview() {
   const single = d.pages.filter((p) => p.experts.length === 1 && p.status !== "stale");
   const captures = d.sessions.filter((s) => s.mode === "capture");
   const open = d.pages.flatMap((p) => p.openQuestions.map((q) => ({ q, page: p })));
+  const review = d.pages.flatMap((p) => (p.conflicts ?? []).filter((c) => c.status !== "resolved").map((c) => ({ c, page: p })));
+  const heard = (d.blacklistSuggestions ?? []).filter((x) => x.status === "pending");
   const mistakes = d.pages.flatMap((p) => p.mistakes.map((m) => ({ ...m, page: p }))).sort((a, b) => b.count - a.count).slice(0, 5);
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Knowledge hub</h1>
-        <p className="text-sm text-stone-500">What {d.people.filter((p) => p.kind === "expert").map((p) => p.name.split(" ")[0]).join(" and ")} know about invoice processing — captured from real work, confirmed in their own words, kept current.</p>
-      </div>
+      <PageHeader title="Knowledge hub" subtitle={<>What {d.people.filter((p) => p.kind === "expert").map((p) => p.name.split(" ")[0]).join(" and ")} know about invoice processing — captured from real work, confirmed in their own words, kept current.</>} />
 
-      <div className="grid grid-cols-5 gap-3">
-        {[
-          ["Pages", d.pages.length, "/hub/pages"],
-          ["Guardrails", `${machine}/${guardrails}`, "/hub/pages"],
-          ["Graph version", `v${d.graph.version}`, "/hub/graph"],
-          ["Sessions", captures.length, "/hub/sessions"],
-          ["Lessons", d.lessons.length, "/hub/lessons"],
-        ].map(([l, v, h]) => (
-          <Link key={l as string} href={h as string} className="rounded-xl border border-stone-200 bg-white p-3 shadow-sm hover:border-stone-400">
-            <div className="text-2xl font-semibold tabular-nums">{v}</div>
-            <div className="text-xs text-stone-500">{l}{l === "Guardrails" ? " machine-checkable" : ""}</div>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+        {([
+          ["Pages", d.pages.length, "/hub/pages", "pages", "situations"],
+          ["Guardrails", `${machine}/${guardrails}`, "/hub/pages", "shield", "machine-checkable"],
+          ["Graph", `v${d.graph.version}`, "/hub/graph", "graph", `${d.graph.traces.length} observed cases`],
+          ["Sessions", captures.length, "/hub/sessions", "sessions", "captures"],
+          ["Lessons", d.lessons.length, "/hub/lessons", "lessons", "generated"],
+        ] as const).map(([l, v, h, icon, hint]) => (
+          <Link key={l} href={h} className="group rounded-2xl border border-stone-200/80 bg-white p-4 shadow-[0_1px_2px_rgba(28,27,24,0.04)] transition hover:-translate-y-0.5 hover:border-stone-300 hover:shadow-md">
+            <div className="flex items-center justify-between text-xs font-medium text-stone-500">
+              {l}
+              <span className="grid h-7 w-7 place-items-center rounded-lg bg-amber-50 text-amber-700 ring-1 ring-amber-100 group-hover:bg-amber-100"><Icon name={icon} className="h-3.5 w-3.5" /></span>
+            </div>
+            <div className="mt-2 text-[28px] font-semibold leading-none tracking-tight tabular-nums text-stone-900">{v}</div>
+            <div className="mt-1.5 text-[11px] text-stone-400">{hint}</div>
           </Link>
         ))}
       </div>
@@ -43,12 +47,12 @@ export default async function HubOverview() {
         </Card>
       )}
 
-      <div className="grid grid-cols-3 gap-4">
-        <div className="col-span-2 space-y-4">
+      <div className="grid gap-4 lg:grid-cols-3">
+        <div className="space-y-4 lg:col-span-2">
           <Card title="Pages" action={<Link className="text-xs text-sky-700 underline" href="/hub/pages">all pages</Link>}>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid gap-2.5 sm:grid-cols-2">
               {d.pages.map((p) => (
-                <Link key={p.id} href={`/hub/pages/${p.id}`} className="rounded-lg border border-stone-200 p-3 hover:border-stone-400">
+                <Link key={p.id} href={`/hub/pages/${p.id}`} className="rounded-xl border border-stone-200/80 p-3.5 transition hover:border-stone-300 hover:bg-stone-50/60">
                   <div className="mb-1 flex items-center gap-2"><PageStatus status={p.status} /><span className="text-[11px] text-stone-400">v{p.version}</span></div>
                   <div className="font-medium leading-snug">{p.title}</div>
                   <div className="mt-1 line-clamp-2 text-xs text-stone-500">{p.triggerText}</div>
@@ -62,6 +66,25 @@ export default async function HubOverview() {
         </div>
 
         <div className="space-y-4">
+          {(review.length > 0 || heard.length > 0) && (
+            <Card title="Needs review" tone="warn">
+              <p className="mb-2 text-xs text-stone-600">Newer knowledge contradicts older knowledge. A person decides what is true now.</p>
+              <ul className="space-y-2 text-sm">
+                {review.map(({ c, page }) => (
+                  <li key={c.id}>
+                    <Link href={`/hub/pages/${page.id}`} className="font-medium hover:underline">{page.title}</Link>
+                    <div className="text-xs text-stone-600"><span className={`mr-1 rounded px-1 py-0.5 text-[10px] font-semibold ${c.status === "disputed" ? "bg-orange-100 text-orange-800" : "bg-amber-100 text-amber-800"}`}>{c.status === "disputed" ? "DISPUTED" : "CHANGED"}</span>{c.summary}</div>
+                  </li>
+                ))}
+                {heard.map((x) => (
+                  <li key={x.id}>
+                    <Link href="/hub/blacklist" className="font-medium hover:underline">Supplier blacklist</Link>
+                    <div className="text-xs text-stone-600"><span className="mr-1 rounded bg-sky-100 px-1 py-0.5 text-[10px] font-semibold text-sky-800">HEARD</span>{x.action === "add" ? "Blacklist" : "Take off the list"}: {x.supplierName} — “{x.quote}”</div>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          )}
           <Card title="What changed">
             <ul className="space-y-2 text-sm">
               {feed.map((f, k) => (

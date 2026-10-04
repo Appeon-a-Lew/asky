@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PageHeader } from "@/components/hub";
 import { freshDB } from "@/lib/fresh";
 
 const KIND = { walkthrough: "Walkthrough", drill: "Predict & quiz", quiz: "Quiz", delta: "What changed" } as const;
@@ -7,10 +8,7 @@ export default async function Lessons() {
   const d = await freshDB();
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Lessons</h1>
-        <p className="text-sm text-stone-500">Generated from the pages and the process graph, regenerated whenever a page changes. Live coaching on a real case happens in <Link href="/teach" className="underline">Teach</Link>.</p>
-      </div>
+      <PageHeader title="Lessons" subtitle={<>Generated from the pages and the process graph, regenerated whenever a page changes. Live coaching on a real case happens in <Link href="/teach" className="underline">Teach</Link>.</>} />
       <div className="grid grid-cols-3 gap-3">
         {d.lessons.map((l) => (
           <Link key={l.id} href={`/hub/lessons/${l.id}`} className={`rounded-xl border bg-white p-4 shadow-sm hover:border-stone-400 ${l.kind === "delta" ? "border-amber-300" : "border-stone-200"}`}>

@@ -22,7 +22,8 @@ export interface Voice {
   lastUserSpeechAt: number;
   start(role: VoiceRole, roleContext?: string): Promise<void>;
   stop(): void;
-  say(text: string, kind?: "ask" | "say"): Promise<void>;
+  /** one voice at a time: a new text cuts the current one short — except an urgent one (a warning), which others wait for */
+  say(text: string, kind?: "ask" | "say", urgent?: boolean): Promise<void>;
   prepare(text: string): void; // preload speech (question decided before the pause)
   hush(): void; // stop speaking now (the person started answering)
   context(text: string): void;
@@ -86,14 +87,18 @@ function ttsAudio(text: string) {
   return a;
 }
 
-const words = (t: string) => t.toLowerCase().replace(/[^a-z0-9äöüß ]/g, " ").split(/\s+/).filter((w) => w.length > 2);
+// word stems: the transcript of our own voice through the speakers is close, not exact ("systems report" for "system reports")
+const words = (t: string) => t.toLowerCase().replace(/[^a-z0-9äöüß ]/g, " ").split(/\s+/).filter((w) => w.length > 2).map((w) => w.slice(0, 5));
 /** Is this transcript just our own voice coming back through the speakers? */
 function isEcho(heard: string, said: string) {
   const h = words(heard);
   if (!h.length || !said) return false;
   const s = new Set(words(said));
-  return h.filter((w) => s.has(w)).length / h.length > 0.6;
+  return h.filter((w) => s.has(w)).length / h.length > 0.5;
 }
+/** the transcript of the last words played arrives only after the agent's turn detection closes the "turn" */
+const ECHO_TAIL_MS = 4000;
+const REPLY = /^(yes|yeah|yep|no|nope|correct|exactly|ja|nein|genau|stimmt)\b/i;
 
 function ElevenVoice({ children }: { children: React.ReactNode }) {
   const { emit, onUtterance } = useListeners();
@@ -101,7 +106,7 @@ function ElevenVoice({ children }: { children: React.ReactNode }) {
   const [speaking, setSpeaking] = useState(false);
   const lastUser = useRef(0);
   const lastTranscript = useRef(0);
-  const current = useRef<{ audio: HTMLAudioElement; text: string; endedAt: number; done: () => void } | null>(null);
+  const current = useRef<{ audio: HTMLAudioElement; text: string; urgent: boolean; finished: Promise<void>; done: () => void } | null>(null);
   const lastSaid = useRef({ text: "", until: 0 });
   const wantLive = useRef<{ role: VoiceRole; ctx?: string } | null>(null);
   const convRef = useRef<ReturnType<typeof useConversation> | null>(null);
@@ -126,7 +131,8 @@ function ElevenVoice({ children }: { children: React.ReactNode }) {
       const r = (m as { role?: string }).role ?? m.source;
       if (r !== "user" || !m.message?.trim() || m.message.startsWith("[")) return;
       const text = m.message.trim();
-      if (Date.now() < lastSaid.current.until && isEcho(text, lastSaid.current.text)) return; // our own TTS
+      // our own TTS — but a reply that starts with yes / no is always the person ("Yes, that's right" shares words with any teach-back)
+      if (Date.now() < lastSaid.current.until && !REPLY.test(text) && isEcho(text, lastSaid.current.text)) return;
       lastUser.current = Date.now();
       lastTranscript.current = Date.now();
       emit({ text, ts: Date.now() });
@@ -152,33 +158,43 @@ function ElevenVoice({ children }: { children: React.ReactNode }) {
     return () => clearInterval(t);
   }, []);
 
-  const speak = useCallback((text: string) => {
-    return new Promise<void>((resolve) => {
-      current.current?.done();
-      const audio = ttsAudio(text);
-      audioCache.delete(text); // single use
-      let finished = false;
-      const done = () => {
-        if (finished) return;
-        finished = true;
-        audio.pause();
+  const speak = useCallback(async (text: string, urgent = false) => {
+    // a warning is never cut short by small talk: the rest waits for it
+    while (current.current?.urgent && !urgent) await current.current.finished;
+    current.current?.done();
+    const audio = ttsAudio(text);
+    audioCache.delete(text); // single use
+    let finished = false;
+    let fallback = false;
+    let resolve!: () => void;
+    const promise = new Promise<void>((r) => (resolve = r));
+    const done = () => {
+      if (finished) return;
+      finished = true;
+      audio.pause();
+      if (fallback) speechSynthesis.cancel();
+      if (current.current?.done === done) {
         current.current = null;
-        lastSaid.current = { text, until: Date.now() + 1500 };
         setSpeaking(false);
-        resolve();
-      };
-      current.current = { audio, text, endedAt: 0, done };
-      lastSaid.current = { text, until: Number.MAX_SAFE_INTEGER };
-      setSpeaking(true);
-      audio.onended = done;
-      audio.onerror = () => {
-        // TTS failed → browser speech, so the question is still heard
-        current.current = null;
-        browserSpeak(text).then(done);
-      };
-      audio.play().catch(() => browserSpeak(text).then(done));
-      setTimeout(done, 4000 + text.length * 90); // never hang
-    });
+      }
+      lastSaid.current = { text, until: Date.now() + ECHO_TAIL_MS };
+      resolve();
+    };
+    // TTS failed → browser speech, so the question is still heard. Not when this text was already cut
+    // short: pausing a loading audio rejects play(), and that must not start a second voice.
+    const viaBrowser = () => {
+      if (finished || fallback) return;
+      fallback = true;
+      browserSpeak(text).then(done);
+    };
+    current.current = { audio, text, urgent, finished: promise, done };
+    lastSaid.current = { text, until: Number.MAX_SAFE_INTEGER };
+    setSpeaking(true);
+    audio.onended = done;
+    audio.onerror = viaBrowser;
+    audio.play().catch(viaBrowser);
+    setTimeout(done, 4000 + text.length * 90); // never hang
+    return promise;
   }, []);
 
   const voice = useMemo<Voice>(
@@ -201,7 +217,7 @@ function ElevenVoice({ children }: { children: React.ReactNode }) {
         current.current?.done();
         conv.endSession();
       },
-      say: (text) => speak(text),
+      say: (text, _kind, urgent) => speak(text, urgent),
       prepare(text) {
         ttsAudio(text);
       },
@@ -312,8 +328,10 @@ function BrowserVoice({ children }: { children: React.ReactNode }) {
     return () => clearInterval(t);
   }, []);
 
-  const speak = useCallback((text: string) => {
-    return new Promise<void>((resolve) => {
+  const urgentNow = useRef<Promise<void> | null>(null);
+  const speak = useCallback(async (text: string, urgent = false) => {
+    while (urgentNow.current && !urgent) await urgentNow.current;
+    const p = new Promise<void>((resolve) => {
       if (typeof speechSynthesis === "undefined") return resolve();
       const u = new SpeechSynthesisUtterance(text);
       u.rate = 1.03;
@@ -336,6 +354,11 @@ function BrowserVoice({ children }: { children: React.ReactNode }) {
       speechSynthesis.cancel();
       speechSynthesis.speak(u);
     });
+    if (urgent) {
+      urgentNow.current = p;
+      p.finally(() => urgentNow.current === p && (urgentNow.current = null));
+    }
+    return p;
   }, []);
 
   const voice = useMemo<Voice>(
@@ -360,7 +383,7 @@ function BrowserVoice({ children }: { children: React.ReactNode }) {
         speechSynthesis?.cancel();
         setStatus("idle");
       },
-      say: (text) => speak(text),
+      say: (text, _kind, urgent) => speak(text, urgent),
       prepare() {},
       hush() {
         if (typeof speechSynthesis !== "undefined") speechSynthesis.cancel();

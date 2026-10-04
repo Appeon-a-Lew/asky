@@ -16,7 +16,7 @@ export default function LessonPlayer({ lesson, frames }: { lesson: Lesson; frame
   return (
     <div className="mx-auto max-w-2xl space-y-4">
       <div className="text-xs text-stone-500"><Link href="/hub/lessons" className="hover:underline">Lessons</Link> / {lesson.kind}</div>
-      <h1 className="text-2xl font-semibold tracking-tight">{lesson.title}</h1>
+      <h1 className="text-[26px] font-semibold leading-tight tracking-tight text-stone-900">{lesson.title}</h1>
       <div className="h-1.5 overflow-hidden rounded bg-stone-200"><div className="h-full bg-amber-400 transition-all" style={{ width: `${(Math.min(k, lesson.items.length) / Math.max(1, lesson.items.length)) * 100}%` }} /></div>
       {done ? (
         <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-6 text-center">

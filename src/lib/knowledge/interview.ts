@@ -1,8 +1,15 @@
 import "server-only";
+import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
 import { llmJSON, withFallback } from "../llm";
-import { db, mutate, uid } from "../store";
+import { redact } from "../redact";
+import { DATA_ROOT, dataDir, db, mutate, uid } from "../store";
+import { transcribe } from "../voice/stt";
 import type { DB, Question, QuestionKind } from "../types";
 import { commitDraft } from "./commit";
+import { checkConflicts } from "./conflicts";
+import { suggestBlacklistChanges } from "../blacklist";
 import { extractFreeHeuristic, extractKnowledge } from "./extract";
 
 // Guided interview: ask about exactly what the hub is unsure about.
@@ -53,7 +60,7 @@ export async function finishInterview(sessionId: string) {
     ? (await withFallback(() => extractKnowledge(d, s), () => extractFreeHeuristic(s), "free-interview")).value
     : await extractKnowledge(d, s);
   if (s.mode === "interview_free" && draft.by === "heuristic" && !draft.situations.length) Object.assign(draft, extractFreeHeuristic(s));
-  return mutate((dd) => {
+  const result = mutate((dd) => {
     const ss = dd.sessions.find((x) => x.id === sessionId)!;
     ss.phase = "done";
     ss.endedAt = Date.now();
@@ -61,4 +68,63 @@ export async function finishInterview(sessionId: string) {
     dd.docs.push({ id: uid("DOC-"), title: ss.title, kind: "transcript", content: ss.transcript.map((u) => `**${u.speaker}:** ${u.text}`).join("\n\n"), source: `session ${ss.id}`, createdAt: Date.now() });
     return commitDraft(dd, ss, draft, { confirmed: ss.mode === "interview_guided" });
   });
+  // an interview can contradict what earlier sessions put on a page
+  const conflicts = [];
+  for (const c of result.changed.filter((x) => !x.created)) conflicts.push(...(await checkConflicts(c.pageId, sessionId)).map((x) => ({ pageId: c.pageId, title: c.title, kind: x.kind, summary: x.summary })));
+  const blacklist = await suggestBlacklistChanges(sessionId).catch(() => []);
+  return { ...result, conflicts, blacklist };
+}
+
+/**
+ * A recorded interview (any language) → transcript → knowledge. ElevenLabs Scribe
+ * transcribes with speaker diarization; the speaker who mostly asks is the
+ * interviewer, everyone else is the expert. Everything the expert says is
+ * tagged "stated" and keeps its timestamp in the recording.
+ */
+export async function importInterview(personId: string, audio: Buffer, filename: string, mime: string, opts: { cacheTranscript?: boolean } = {}) {
+  const stt = opts.cacheTranscript ? await cachedTranscript(audio, filename, mime) : await transcribe(new Blob([new Uint8Array(audio)], { type: mime }), filename);
+  if (!stt.utterances.length) throw new Error("no speech found in the recording");
+
+  // interviewer = the speaker whose turns are mostly questions
+  const bySpeaker = new Map<string, { q: number; n: number; words: number }>();
+  for (const u of stt.utterances) {
+    const x = bySpeaker.get(u.speaker) ?? { q: 0, n: 0, words: 0 };
+    x.n++;
+    x.q += /\?\s*$/.test(u.text) ? 1 : 0;
+    x.words += u.text.split(/\s+/).length;
+    bySpeaker.set(u.speaker, x);
+  }
+  const speakers = [...bySpeaker.entries()];
+  const interviewer = speakers.length > 1 ? speakers.sort((a, b) => b[1].q / b[1].n - a[1].q / a[1].n || a[1].words - b[1].words)[0][0] : undefined;
+
+  const { session } = await startInterview("interview_free", personId);
+  const ext = (filename.match(/\.(\w+)$/)?.[1] ?? "mp3").toLowerCase();
+  const dir = path.join(dataDir(), "audio");
+  fs.mkdirSync(dir, { recursive: true });
+  const file = `${session.id}.${ext}`;
+  fs.writeFileSync(path.join(dir, file), audio);
+  const durationSec = stt.utterances[stt.utterances.length - 1].end;
+
+  mutate((dd) => {
+    const s = dd.sessions.find((x) => x.id === session.id)!;
+    const person = dd.people.find((p) => p.id === personId)?.name ?? personId;
+    s.title = `Recorded interview · ${person}${stt.language ? ` (${stt.language})` : ""}`;
+    s.recording = { file, mime, language: stt.language, durationSec, stt: `elevenlabs ${stt.model}` };
+    for (const u of stt.utterances) {
+      s.transcript.push({ id: uid("U-"), sessionId: s.id, ts: s.startedAt + Math.round(u.start * 1000), speaker: u.speaker === interviewer ? "agent" : "expert", text: redact(u.text).text, audio: { start: u.start, end: u.end } });
+    }
+  });
+  const result = await finishInterview(session.id);
+  const s = db().sessions.find((x) => x.id === session.id)!;
+  return { sessionId: s.id, title: s.title, language: stt.language, durationSec, stt: s.recording!.stt, speakers: speakers.length, transcript: s.transcript.map((u) => ({ speaker: u.speaker, text: u.text, start: u.audio?.start })), ...result };
+}
+
+/** The bundled sample recording is transcribed once and shared by every workspace (never used for uploads). */
+async function cachedTranscript(audio: Buffer, filename: string, mime: string) {
+  const file = path.join(DATA_ROOT, "cache", `stt-${crypto.createHash("sha256").update(audio).digest("hex").slice(0, 24)}.json`);
+  if (fs.existsSync(file)) return JSON.parse(fs.readFileSync(file, "utf8")) as Awaited<ReturnType<typeof transcribe>>;
+  const stt = await transcribe(new Blob([new Uint8Array(audio)], { type: mime }), filename);
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, JSON.stringify(stt));
+  return stt;
 }

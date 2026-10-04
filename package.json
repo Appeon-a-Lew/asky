@@ -11,7 +11,11 @@
     "mcp": "tsx --env-file-if-exists=.env.local harness/mcp-server.ts",
     "simulate": "tsx --env-file-if-exists=.env.local scripts/simulate.ts",
     "setup:voice": "tsx --env-file-if-exists=.env.local scripts/setup-elevenlabs.ts",
-    "e2e": "tsx --env-file-if-exists=.env.local scripts/e2e-ui.ts"
+    "e2e": "tsx --env-file-if-exists=.env.local scripts/e2e-ui.ts",
+    "seed:erpnext": "tsx --env-file-if-exists=.env.local scripts/seed-erpnext.ts",
+    "e2e:erpnext": "tsx --env-file-if-exists=.env.local scripts/e2e-erpnext.ts",
+    "landing": "tsx --env-file-if-exists=.env.local --conditions=react-server scripts/build-landing.ts",
+    "make:interview": "tsx --env-file-if-exists=.env.local scripts/make-interview-audio.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.131.0",

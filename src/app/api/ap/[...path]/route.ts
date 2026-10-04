@@ -1,4 +1,5 @@
 import { dispatch, openapi } from "@/lib/ap/api";
+import { withWorkspace } from "@/lib/workspace";
 
 type Ctx = { params: Promise<{ path: string[] }> };
 
@@ -19,6 +20,6 @@ async function handle(req: Request, ctx: Ctx) {
   return Response.json(res.json, { status: res.status ?? 200 });
 }
 
-export const GET = handle;
-export const POST = handle;
-export const PATCH = handle;
+export const GET = withWorkspace(handle);
+export const POST = withWorkspace(handle);
+export const PATCH = withWorkspace(handle);

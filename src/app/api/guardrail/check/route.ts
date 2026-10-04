@@ -1,8 +1,9 @@
 import { checkGuardrails } from "@/lib/engine/guard";
 import { db } from "@/lib/store";
+import { withWorkspace } from "@/lib/workspace";
 
 // MCP `check_guardrail`: would this tool call break something the experts know?
-export async function POST(req: Request) {
+async function handlePOST(req: Request) {
   const b = (await req.json()) as { tool: string; args?: Record<string, unknown>; caseId?: string; trace?: string[] };
   const args = b.args ?? {};
   const caseId = b.caseId ?? (typeof args.id === "string" ? args.id : undefined);
@@ -13,3 +14,5 @@ export async function POST(req: Request) {
     applicable_guardrails: r.applicable.map((a) => a.text),
   });
 }
+
+export const POST = withWorkspace(handlePOST);

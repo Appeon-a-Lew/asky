@@ -8,18 +8,19 @@ import { scoreRules } from "./engine/rules";
 import { phraseQuestion } from "./engine/question";
 import { matchRequest } from "./mcp/catalog";
 import { redact } from "./redact";
-import { db, FRAMES_DIR, mutate, uid } from "./store";
+import { db, framesDir, mutate, uid } from "./store";
 import type { AppEvent, DB, Question, Session, SessionMode, Speaker, ToolDef, Utterance } from "./types";
 
 // ---------------------------------------------------------------------------
 // Sessions
 // ---------------------------------------------------------------------------
 
-export function createSession(mode: SessionMode, personId: string, title?: string, trainingCaseIds?: string[]): Session {
+export function createSession(mode: SessionMode, personId: string, title?: string, trainingCaseIds?: string[], target?: Session["target"]): Session {
   const person = db().people.find((p) => p.id === personId);
   const s: Session = {
     id: uid("S-"),
     mode,
+    target,
     personId,
     title: title || `${mode === "teach" ? "Training" : mode.startsWith("interview") ? "Interview" : "Capture"} · ${person?.name ?? personId}`,
     startedAt: Date.now(),
@@ -54,7 +55,9 @@ function inSession<T>(id: string, fn: (s: Session, d: DB) => T): T {
 export type RawMsg =
   | { type: "asky:api"; method: string; path: string; body?: unknown; status: number; ok: boolean; response?: Record<string, unknown>; ts: number }
   | { type: "asky:ui"; action: "focus" | "input" | "click" | "nav"; field?: string; value?: string; label?: string; path?: string; ts: number }
-  | { type: "asky:external"; app: string; description: string; ts: number; frameId?: string };
+  | { type: "asky:external"; app: string; description: string; ts: number; frameId?: string }
+  // a step read off the screen of a real application (vision + its API), already in domain-tool terms
+  | { type: "asky:observed"; tool: string; args: Record<string, unknown>; summary: string; caseId?: string; ts: number; frameId?: string };
 
 function summarize(d: DB, tool: ToolDef, args: Record<string, unknown>, ok: boolean, response?: Record<string, unknown>): string {
   const id = args.id ? ` ${args.id}` : "";
@@ -96,6 +99,10 @@ function toEvent(d: DB, s: Session, m: RawMsg, currentCase: string | undefined):
   }
   if (m.type === "asky:external") {
     return { ...base, kind: "external", external: { app: m.app, description: m.description }, caseId: currentCase, frameId: m.frameId, summary: `${m.app}: ${m.description}` };
+  }
+  if (m.type === "asky:observed") {
+    const tool = d.tools?.tools.find((t) => t.name === m.tool);
+    return { ...base, kind: "tool", tool: m.tool, args: m.args, effect: tool?.effect ?? "write", ok: true, caseId: m.caseId ?? currentCase, frameId: m.frameId, summary: m.summary };
   }
   return null;
 }
@@ -198,10 +205,56 @@ export interface GateResult {
 
 export function gate(sessionId: string, method: string, reqPath: string, body: unknown): GateResult {
   const d = db();
-  const s = d.sessions.find((x) => x.id === sessionId);
-  if (!s) return { allow: true };
   const hit = matchRequest(d.tools, method, reqPath, body);
   if (!hit) return { allow: true };
+  return gateTool(sessionId, hit.tool.name, hit.args);
+}
+
+/** Gate a domain-tool call — from the instrumented app's request, or a confirm dialog seen on a real app's screen. */
+/** Teach: the learner broke (or is about to break) a guardrail — counts toward the mistakes the page tracks. */
+function recordCatch(sessionId: string, caseId: string, tool: string, v: Violation) {
+  mutate((dd) => {
+    const ss = dd.sessions.find((x) => x.id === sessionId)!;
+    ss.teachResult ??= { learnerId: ss.personId, caught: [], predictions: [], mastery: [] };
+    ss.teachResult.caught.push({ caseId, tool, guardrailId: v.guardrail.id, pageId: v.pageId, at: Date.now(), explanation: v.reason });
+    const page = dd.pages.find((p) => p.id === v.pageId);
+    if (page) {
+      const m = page.mistakes.find((x) => x.text === v.guardrail.text);
+      if (m) { m.count++; m.lastAt = Date.now(); }
+      else page.mistakes.push({ id: uid("M-"), text: v.guardrail.text, count: 1, lastAt: Date.now() });
+    }
+  });
+}
+
+/**
+ * Teach on a real app, where a save cannot be stopped: would this invoice pass
+ * the posting guardrails as it stands now? scope "data": only missing data (an
+ * asset number, a capex cost center) — after a save, or back on the list, where
+ * workflow steps like an approval may still follow. scope "all": the learner
+ * opened another invoice and left this one unfinished. Each guardrail is raised
+ * once per invoice; the Post confirm stays a hard stop.
+ */
+export function tutorReadiness(sessionId: string, caseId: string, stage: "saved" | "left", scope: "data" | "all" = "data"): Violation | null {
+  const d = db();
+  const s = d.sessions.find((x) => x.id === sessionId);
+  if (!s || s.mode !== "teach") return null;
+  const inv = d.erp?.invoices.find((i) => i.id === caseId) ?? d.invoices.find((i) => i.id === caseId);
+  if (!inv || inv.status === "posted") return null;
+  const trace = caseTrace(s.events, caseId).map((e) => e.tool!).filter(Boolean);
+  const { violations } = checkGuardrails(d, "post_invoice", { id: caseId }, caseId, trace);
+  const raised = new Set((s.teachResult?.caught ?? []).filter((c) => c.caseId === caseId).map((c) => c.guardrailId));
+  const v = violations.find((x) => !raised.has(x.guardrail.id) && (scope === "all" || !x.guardrail.rule?.requirePriorTool));
+  if (!v) return null;
+  recordCatch(sessionId, caseId, stage === "saved" ? "save_invoice" : "leave_invoice", v);
+  return v;
+}
+
+export function gateTool(sessionId: string, toolName: string, args: Record<string, unknown>): GateResult {
+  const d = db();
+  const s = d.sessions.find((x) => x.id === sessionId);
+  const tool = d.tools?.tools.find((t) => t.name === toolName);
+  if (!s || !tool) return { allow: true };
+  const hit = { tool, args };
   const caseId = typeof hit.args.id === "string" ? hit.args.id : currentCaseOf(s);
   const trace = caseId ? caseTrace(s.events, caseId).map((e) => e.tool!).filter(Boolean) : [];
   const { violations } = checkGuardrails(d, hit.tool.name, hit.args, caseId, trace);
@@ -209,17 +262,7 @@ export function gate(sessionId: string, method: string, reqPath: string, body: u
   if (s.mode === "teach") {
     if (!violations.length) return { allow: true, tool: hit.tool.name, effect: hit.tool.effect };
     const v = violations[0];
-    mutate((dd) => {
-      const ss = dd.sessions.find((x) => x.id === sessionId)!;
-      ss.teachResult ??= { learnerId: ss.personId, caught: [], predictions: [], mastery: [] };
-      ss.teachResult.caught.push({ caseId: caseId ?? "", tool: hit.tool.name, guardrailId: v.guardrail.id, pageId: v.pageId, at: Date.now(), explanation: v.reason });
-      const page = dd.pages.find((p) => p.id === v.pageId);
-      if (page) {
-        const m = page.mistakes.find((x) => x.text === v.guardrail.text);
-        if (m) { m.count++; m.lastAt = Date.now(); }
-        else page.mistakes.push({ id: uid("M-"), text: v.guardrail.text, count: 1, lastAt: Date.now() });
-      }
-    });
+    recordCatch(sessionId, caseId ?? "", hit.tool.name, v);
     return { allow: false, tool: hit.tool.name, effect: hit.tool.effect, violations, message: `Stopped before ${hit.tool.title.toLowerCase()}: ${v.guardrail.text}` };
   }
 
@@ -290,7 +333,7 @@ export function setOffRecord(sessionId: string, on: boolean) {
       // purge everything captured inside the window except bare tool steps
       s.transcript = s.transcript.filter((u) => u.ts < open.from || u.ts > open.to! || u.speaker === "agent");
       const drop = s.frames.filter((f) => f.ts >= open.from && f.ts <= open.to!);
-      for (const f of drop) fs.rmSync(path.join(FRAMES_DIR, f.file), { force: true });
+      for (const f of drop) fs.rmSync(path.join(framesDir(), f.file), { force: true });
       s.frames = s.frames.filter((f) => !drop.includes(f));
       for (const e of s.events) if (e.ts >= open.from && e.ts <= open.to!) e.frameId = undefined;
     }
@@ -305,8 +348,8 @@ export function saveFrame(sessionId: string, dataUrl: string, ts: number, captio
   if (!s || s.offRecord.some((o) => !o.to)) return null;
   const id = uid("F-");
   const file = `${sessionId}/${id}.${m[1] === "png" ? "png" : "jpg"}`;
-  fs.mkdirSync(path.join(FRAMES_DIR, sessionId), { recursive: true });
-  fs.writeFileSync(path.join(FRAMES_DIR, file), Buffer.from(m[2], "base64"));
+  fs.mkdirSync(path.join(framesDir(), sessionId), { recursive: true });
+  fs.writeFileSync(path.join(framesDir(), file), Buffer.from(m[2], "base64"));
   return inSession(sessionId, (ss) => {
     const f = { id, sessionId, ts, file, caption };
     ss.frames.push(f);

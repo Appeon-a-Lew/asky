@@ -1,0 +1,96 @@
+{
+  "language": "de",
+  "voices": {
+    "interviewer": "iP95p4xoKVk53GoZ742B",
+    "sabine": "XrExE9yKIg1WjnnlVkGX"
+  },
+  "model": "eleven_multilingual_v2",
+  "script": [
+    {
+      "who": "interviewer",
+      "text": "Frau Weber, danke, dass Sie sich die Zeit nehmen. Wie fängt bei Ihnen ein ganz normaler Morgen in der Kreditorenbuchhaltung an?"
+    },
+    {
+      "who": "sabine",
+      "text": "Mit dem Posteingang. Aber nicht von oben nach unten. Ich sortiere zuerst nach Skonto. Wenn eine Rechnung zwei Prozent Skonto bei Zahlung innerhalb von vierzehn Tagen hat, dann kommt die nach vorne. Bei allem über tausend Euro lasse ich nie ein Skonto verfallen, das ist bares Geld."
+    },
+    {
+      "who": "interviewer",
+      "text": "Und dann codieren Sie die Rechnungen?"
+    },
+    {
+      "who": "sabine",
+      "text": "Genau. Die meisten kommen schon mit einer Kostenstelle rein. Wenn die zur Warengruppe passt, also Fracht auf achtundvierzighundert, Reinigung auf siebenundvierzigzwanzig, dann lasse ich sie so. Fracht von Schmidt ist immer in Ordnung, da brauche ich auch keine Bestellung."
+    },
+    {
+      "who": "interviewer",
+      "text": "Wann ändern Sie die Kostenstelle?"
+    },
+    {
+      "who": "sabine",
+      "text": "Bei Anlagen. Ausrüstung über fünftausend Euro ist immer Capex, also Kostenstelle null vierhundert, nicht Instandhaltung. Und ohne Anlagennummer keine Capex-Buchung. Die Nummer bekomme ich von Herrn Krause aus der Anlagenbuchhaltung."
+    },
+    {
+      "who": "interviewer",
+      "text": "Und wenn es weniger ist? Ein Laptop für neunhundert Euro zum Beispiel?"
+    },
+    {
+      "who": "sabine",
+      "text": "Da gibt es die Grenze für geringwertige Wirtschaftsgüter. Bis achthundert Euro netto geht das direkt in den Aufwand, auf siebenundvierzigzwanzig. Darüber ist es IT-Hardware auf null vierhundertzehn, auch mit Anlagennummer. Das verwechseln die Neuen am häufigsten.",
+      "pause": 0.9
+    },
+    {
+      "who": "interviewer",
+      "text": "Gibt es Rechnungen, bei denen Sie grundsätzlich jemanden fragen?"
+    },
+    {
+      "who": "sabine",
+      "text": "Alles von unserer tschechischen Tochter, Keller CZ. Das geht immer zu Doktor Fischer im Controlling zur zweiten Freigabe, egal wie hoch der Betrag ist. Wegen der Verrechnungspreise. Und auf diesen Rechnungen steht keine Mehrwertsteuer, das ist Reverse Charge. Wenn da doch Steuer drauf ist, ist die Rechnung falsch."
+    },
+    {
+      "who": "interviewer",
+      "text": "Was machen Sie, wenn Doktor Fischer nicht da ist?"
+    },
+    {
+      "who": "sabine",
+      "text": "Dann geht es an Frau Yilmaz, die Regionalcontrollerin. Aber nur, wenn es vor dem Monatsabschluss sein muss. Sonst warte ich lieber auf ihn."
+    },
+    {
+      "who": "interviewer",
+      "text": "Gab es mal einen Fall, der richtig schiefgehen konnte?"
+    },
+    {
+      "who": "sabine",
+      "text": "Ja. Vor drei Jahren kam eine E-Mail, angeblich von einem Lieferanten: neue Bankverbindung, bitte ab sofort dorthin überweisen. Das war Betrug. Seitdem gilt bei mir: Eine Bankverbindung ändere ich nie auf Grund einer E-Mail. Ich rufe beim Lieferanten an, und zwar unter der Nummer aus unseren Stammdaten, nicht unter der aus der Mail.",
+      "pause": 1
+    },
+    {
+      "who": "interviewer",
+      "text": "Und bei ganz neuen Lieferanten?"
+    },
+    {
+      "who": "sabine",
+      "text": "Da macht Thomas das Vier-Augen-Prinzip. Bevor die erste Zahlung an einen neuen Lieferanten rausgeht, prüft er die Stammdaten. Nie die gleiche Person, die angelegt hat."
+    },
+    {
+      "who": "interviewer",
+      "text": "Sie haben vorhin Nordlicht erwähnt. Was ist da los?"
+    },
+    {
+      "who": "sabine",
+      "text": "Nordlicht Bürobedarf schickt jeden Dezember doppelte Rechnungen. Wenn der Betrag genau gleich ist wie eine Rechnung, die schon bezahlt ist, dann halte ich die neue an, schreibe die Originalnummer dazu und frage nach einer Gutschrift. Vorher schaue ich aber immer in die Lieferantenhistorie."
+    },
+    {
+      "who": "interviewer",
+      "text": "Letzte Frage: Was ist beim Monatsabschluss anders?"
+    },
+    {
+      "who": "sabine",
+      "text": "Rechnungen, die nach dem dritten Arbeitstag kommen, buche ich in den nächsten Monat. Aber wenn so eine Rechnung über fünftausend Euro ist, melde ich sie dem Controlling, damit die eine Rückstellung bilden. Sonst stimmt das Ergebnis nicht."
+    },
+    {
+      "who": "interviewer",
+      "text": "Vielen Dank, Frau Weber. Das war sehr hilfreich."
+    }
+  ]
+}

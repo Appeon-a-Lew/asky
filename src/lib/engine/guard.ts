@@ -32,7 +32,10 @@ export function checkGuardrails(d: DB, tool: string, args: Record<string, unknow
   const violations: Violation[] = [];
   const applicable: { pageId: string; guardrailId: string; text: string }[] = [];
   for (const page of d.pages) {
+    // experts disagree about these: no rule fires until someone decides
+    const paused = new Set((page.conflicts ?? []).filter((c) => c.status === "disputed").flatMap((c) => [...c.older.itemIds, ...c.newer.itemIds]));
     for (const g of page.guardrails) {
+      if (paused.has(g.id)) continue;
       const r = g.rule;
       if (!r || (r.onTool !== tool && r.onTool !== "*")) continue;
       if (!evalAll(r.when, scope) || !evalAll(r.argsWhen, scope)) continue;

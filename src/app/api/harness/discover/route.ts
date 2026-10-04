@@ -1,9 +1,11 @@
 import { generateCatalog, type OpenAPISpec } from "@/lib/mcp/generate";
 import { db, mutate } from "@/lib/store";
+import { isVisitor, withWorkspace } from "@/lib/workspace";
 
 // Server-side rediscovery from the OpenAPI spec (no browser crawl). The full
 // harness with UI crawl is `pnpm harness`; this keeps crawl evidence if present.
-export async function POST(req: Request) {
+async function handlePOST(req: Request) {
+  if (isVisitor()) return Response.json({ error: "The harness is presenter-only" }, { status: 403 });
   const origin = new URL(req.url).origin;
   const spec = (await (await fetch(`${origin}/api/ap/openapi.json`)).json()) as OpenAPISpec;
   const prev = db().tools;
@@ -15,3 +17,5 @@ export async function POST(req: Request) {
   mutate((d) => (d.tools = catalog));
   return Response.json(catalog);
 }
+
+export const POST = withWorkspace(handlePOST);

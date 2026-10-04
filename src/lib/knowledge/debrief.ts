@@ -1,9 +1,11 @@
 import "server-only";
-import { buildCaseContext } from "../engine/context";
+import { buildCaseContext, caseLabel } from "../engine/context";
 import { llmJSON, llmText, withFallback } from "../llm";
 import { db, mutate, uid } from "../store";
 import type { DB, Question, QuestionKind, Session, WorkMap, WorkMapStep } from "../types";
 import { commitDraft } from "./commit";
+import { checkConflicts } from "./conflicts";
+import { suggestBlacklistChanges } from "../blacklist";
 import { extractKnowledge, type KnowledgeDraft } from "./extract";
 
 // After the task: debrief (≥3 follow-ups the live session did not answer),
@@ -64,7 +66,7 @@ function heuristicGaps(d: DB, s: Session, queued: Question[], mk: (t: string, k:
   // 1) why answered but no limit / guardrail mentioned
   for (const q of answered) {
     if (q.kind === "guardrail" || /never|always|only|stop|ask|limit|above|over|unless/i.test(q.answer ?? "")) continue;
-    out.push(mk(`About invoice ${q.caseId}: is there a case where you would not do that, or would stop and ask someone first?`, "guardrail", 0.7, q.caseId));
+    out.push(mk(`About invoice ${caseLabel(d, q.caseId)}: is there a case where you would not do that, or would stop and ask someone first?`, "guardrail", 0.7, q.caseId));
   }
   // 2) counterfactual on a novel situation
   const cases = [...new Set(s.events.filter((e) => e.caseId && e.kind === "tool").map((e) => e.caseId!))];
@@ -117,6 +119,29 @@ function heuristicTeachBack(draft: KnowledgeDraft) {
   return parts.join(" ");
 }
 
+export type TeachBackReply = "confirm" | "correct" | "unclear";
+
+/** Did the expert confirm the teach-back, correct it, or say something else (side talk, a half sentence)? */
+export async function classifyTeachBackReply(sessionId: string, reply: string): Promise<TeachBackReply> {
+  const s = db().sessions.find((x) => x.id === sessionId);
+  const yes = /\b(yes|yeah|yep|correct|right|exactly|ja|genau|stimmt|richtig)\b/i.test(reply);
+  const res = await withFallback(
+    () =>
+      llmJSON<{ kind: TeachBackReply }>({
+        model: "fast",
+        maxTokens: 60,
+        system:
+          'An apprentice read back its summary of an expert\'s process and asked "Did I get that right?". Classify the reply (a speech transcript, possibly garbled): "confirm" = agrees without changes; "correct" = adds, changes or disputes something about the process; "unclear" = unrelated, side talk, cut off, or too garbled to act on.',
+        prompt: JSON.stringify({ summary: s?.teachBack?.text ?? "", reply }),
+        schema: { type: "object", properties: { kind: { type: "string", enum: ["confirm", "correct", "unclear"] } }, required: ["kind"] },
+        name: "teachback_reply",
+      }).then((r) => r.kind),
+    () => (yes ? "confirm" : "correct"),
+    "teachback-reply",
+  );
+  return res.value;
+}
+
 export async function confirmTeachBack(sessionId: string, confirmed: boolean, corrections?: string) {
   if (!confirmed) return { again: await makeTeachBack(sessionId, corrections) };
   let draft = draftCache.get(sessionId);
@@ -130,7 +155,12 @@ export async function confirmTeachBack(sessionId: string, confirmed: boolean, co
     return commitDraft(d, s, draft!, { confirmed: true });
   });
   draftCache.delete(sessionId);
-  return { committed: result };
+  // what this session added may contradict what the pages already said
+  const conflicts = [];
+  for (const c of result.changed.filter((x) => !x.created)) conflicts.push(...(await checkConflicts(c.pageId, sessionId)).map((x) => ({ pageId: c.pageId, title: c.title, kind: x.kind, summary: x.summary })));
+  const blacklist = await suggestBlacklistChanges(sessionId).catch(() => []);
+  const pending = (db().blacklistSuggestions ?? []).filter((x) => x.sessionId === sessionId && x.status === "pending");
+  return { committed: { ...result, conflicts, blacklist: pending.length ? pending : blacklist } };
 }
 
 // ---------------------------------------------------------------------------
@@ -145,7 +175,7 @@ export async function buildWorkMap(sessionId: string, draft?: KnowledgeDraft): P
   const tools = s.events.filter((e) => (e.kind === "tool" && e.effect !== "read") || e.kind === "external" || (e.kind === "tool" && s.questions.some((q) => q.eventId === e.id)));
   for (const e of tools) {
     const q = s.questions.find((x) => x.eventId === e.id && x.status === "answered");
-    const sit = draft?.situations.find((x) => x.caseIds.includes(e.caseId ?? "") && x.steps.some((st) => st.tool === e.tool));
+    const sit = draft?.situations.find((x) => x.caseIds?.includes(e.caseId ?? "") && x.steps?.some((st) => st.tool === e.tool));
     const page = sit ? d.pages.find((p) => p.slug === sit.key) : undefined;
     const caseGuards = s.questions.filter((x) => x.caseId === e.caseId && x.status === "answered" && x.id !== q?.id && (x.kind === "guardrail" || x.kind === "contradiction"));
     steps.push({

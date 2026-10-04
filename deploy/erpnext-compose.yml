@@ -1,0 +1,210 @@
+# ERPNext (frappe_docker pwd.yml, v16.37.0) for the asky demo server.
+# Not published: Caddy (asky stack) proxies erp.* to frontend:8080 on the shared "web" network.
+services:
+  backend:
+    image: frappe/erpnext:v16.37.0
+    networks:
+    - frappe_network
+    volumes:
+    - sites:/home/frappe/frappe-bench/sites
+    - logs:/home/frappe/frappe-bench/logs
+    environment:
+      DB_HOST: db
+      DB_PORT: '3306'
+      MYSQL_ROOT_PASSWORD: admin
+      MARIADB_ROOT_PASSWORD: admin
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+    restart: unless-stopped
+  configurator:
+    image: frappe/erpnext:v16.37.0
+    networks:
+    - frappe_network
+    deploy:
+      restart_policy:
+        condition: none
+    entrypoint:
+    - bash
+    - -c
+    command:
+    - 'ls -1 apps > sites/apps.txt; bench set-config -g db_host $$DB_HOST; bench set-config
+      -gp db_port $$DB_PORT; bench set-config -g redis_cache "redis://$$REDIS_CACHE";
+      bench set-config -g redis_queue "redis://$$REDIS_QUEUE"; bench set-config -g
+      redis_socketio "redis://$$REDIS_QUEUE"; bench set-config -gp socketio_port $$SOCKETIO_PORT;
+
+      '
+    environment:
+      DB_HOST: db
+      DB_PORT: '3306'
+      REDIS_CACHE: redis-cache:6379
+      REDIS_QUEUE: redis-queue:6379
+      SOCKETIO_PORT: '9000'
+    volumes:
+    - sites:/home/frappe/frappe-bench/sites
+    - logs:/home/frappe/frappe-bench/logs
+  create-site:
+    image: frappe/erpnext:v16.37.0
+    networks:
+    - frappe_network
+    deploy:
+      restart_policy:
+        condition: none
+    volumes:
+    - sites:/home/frappe/frappe-bench/sites
+    - logs:/home/frappe/frappe-bench/logs
+    entrypoint:
+    - bash
+    - -c
+    command:
+    - "wait-for-it -t 120 db:3306; wait-for-it -t 120 redis-cache:6379; wait-for-it\
+      \ -t 120 redis-queue:6379; export start=`date +%s`; until [[ -n `grep -hs ^\
+      \ sites/common_site_config.json | jq -r \".db_host // empty\"` ]] && \\\n  [[\
+      \ -n `grep -hs ^ sites/common_site_config.json | jq -r \".redis_cache // empty\"\
+      ` ]] && \\\n  [[ -n `grep -hs ^ sites/common_site_config.json | jq -r \".redis_queue\
+      \ // empty\"` ]];\ndo\n  echo \"Waiting for sites/common_site_config.json to\
+      \ be created\";\n  sleep 5;\n  if (( `date +%s`-start > 120 )); then\n    echo\
+      \ \"could not find sites/common_site_config.json with required keys\";\n   \
+      \ exit 1\n  fi\ndone; echo \"sites/common_site_config.json found\"; if [ -d\
+      \ \"sites/frontend\" ]; then\n  echo \"Site frontend already exists, skipping\
+      \ creation\";\nelse\n  bench new-site --mariadb-user-host-login-scope='%' --admin-password=admin\
+      \ --db-root-username=root --db-root-password=admin --install-app erpnext --set-default\
+      \ frontend;\nfi;\n"
+  db:
+    image: mariadb:11.8
+    networks:
+    - frappe_network
+    healthcheck:
+      test:
+      - CMD
+      - healthcheck.sh
+      - --connect
+      - --innodb_initialized
+      start_period: 5s
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    command:
+    - --character-set-server=utf8mb4
+    - --collation-server=utf8mb4_unicode_ci
+    - --skip-character-set-client-handshake
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MARIADB_ROOT_PASSWORD: admin
+    volumes:
+    - db-data:/var/lib/mysql
+    restart: unless-stopped
+  frontend:
+    image: frappe/erpnext:v16.37.0
+    networks:
+    - frappe_network
+    - web
+    depends_on:
+    - websocket
+    - backend
+    command:
+    - nginx-entrypoint.sh
+    environment:
+      BACKEND: backend:8000
+      FRAPPE_SITE_NAME_HEADER: frontend
+      SOCKETIO: websocket:9000
+      UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
+      UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
+      UPSTREAM_REAL_IP_RECURSIVE: 'off'
+      PROXY_READ_TIMEOUT: 120
+      CLIENT_MAX_BODY_SIZE: 50m
+    volumes:
+    - sites:/home/frappe/frappe-bench/sites
+    - logs:/home/frappe/frappe-bench/logs
+    restart: unless-stopped
+  queue-long:
+    image: frappe/erpnext:v16.37.0
+    networks:
+    - frappe_network
+    command:
+    - bench
+    - worker
+    - --queue
+    - long,default,short
+    volumes:
+    - sites:/home/frappe/frappe-bench/sites
+    - logs:/home/frappe/frappe-bench/logs
+    environment:
+      FRAPPE_REDIS_CACHE: redis://redis-cache:6379
+      FRAPPE_REDIS_QUEUE: redis://redis-queue:6379
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+    restart: unless-stopped
+  queue-short:
+    image: frappe/erpnext:v16.37.0
+    networks:
+    - frappe_network
+    command:
+    - bench
+    - worker
+    - --queue
+    - short,default
+    volumes:
+    - sites:/home/frappe/frappe-bench/sites
+    - logs:/home/frappe/frappe-bench/logs
+    environment:
+      FRAPPE_REDIS_CACHE: redis://redis-cache:6379
+      FRAPPE_REDIS_QUEUE: redis://redis-queue:6379
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+    restart: unless-stopped
+  redis-queue:
+    image: redis:6.2-alpine
+    networks:
+    - frappe_network
+    volumes:
+    - redis-queue-data:/data
+    restart: unless-stopped
+  redis-cache:
+    image: redis:6.2-alpine
+    networks:
+    - frappe_network
+    restart: unless-stopped
+  scheduler:
+    image: frappe/erpnext:v16.37.0
+    networks:
+    - frappe_network
+    command:
+    - bench
+    - schedule
+    volumes:
+    - sites:/home/frappe/frappe-bench/sites
+    - logs:/home/frappe/frappe-bench/logs
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+    restart: unless-stopped
+  websocket:
+    image: frappe/erpnext:v16.37.0
+    networks:
+    - frappe_network
+    command:
+    - node
+    - /home/frappe/frappe-bench/apps/frappe/socketio.js
+    environment:
+      FRAPPE_REDIS_CACHE: redis://redis-cache:6379
+      FRAPPE_REDIS_QUEUE: redis://redis-queue:6379
+    volumes:
+    - sites:/home/frappe/frappe-bench/sites
+    - logs:/home/frappe/frappe-bench/logs
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+    restart: unless-stopped
+volumes:
+  db-data: null
+  redis-queue-data: null
+  sites: null
+  logs: null
+networks:
+  frappe_network:
+    driver: bridge
+  web:
+    external: true

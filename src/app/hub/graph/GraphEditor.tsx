@@ -154,7 +154,7 @@ export default function GraphEditor({ initial, tools, pages, people, focus }: { 
 
   return (
     <div className="flex gap-3">
-      <div className="h-[72vh] min-w-0 flex-1 overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm">
+      <div className="h-[72vh] min-w-0 flex-1 overflow-hidden rounded-2xl border border-stone-200/80 bg-white shadow-[0_1px_2px_rgba(28,27,24,0.04)]">
         <ReactFlow
           nodes={nodes} edges={edges} nodeTypes={nodeTypes}
           onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onConnect={onConnect}

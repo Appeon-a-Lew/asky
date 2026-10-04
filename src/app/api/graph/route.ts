@@ -1,7 +1,8 @@
 import { mutate } from "@/lib/store";
 import type { ExecGraph } from "@/lib/types";
+import { withWorkspace } from "@/lib/workspace";
 
-export async function PUT(req: Request) {
+async function handlePUT(req: Request) {
   const b = (await req.json()) as Pick<ExecGraph, "nodes" | "edges" | "groups">;
   const g = mutate((d) => {
     d.graph.nodes = b.nodes;
@@ -13,3 +14,5 @@ export async function PUT(req: Request) {
   });
   return Response.json({ version: g.version });
 }
+
+export const PUT = withWorkspace(handlePUT);

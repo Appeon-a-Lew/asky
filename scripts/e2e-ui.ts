@@ -32,15 +32,22 @@ async function waitForQuestion(page: Page, timeout = 15000) {
 
 async function main() {
   const browser = await chromium.launch();
-  const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
+  // gated server (ASKY_SECRET set): enter like the audience does, with the event code → a private workspace
+  const code = process.env.ASKY_EVENT_CODE;
+  const cookie = code ? (await fetch(`${BASE}/api/workspace`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ code }) })).headers.getSetCookie().map((c) => c.split(";")[0]).find((c) => c.startsWith("asky_ws=")) : undefined;
+  if (code && !cookie) throw new Error("could not enter with ASKY_EVENT_CODE");
+  const ctx = await browser.newContext({ viewport: { width: 1600, height: 1000 } });
+  if (cookie) await ctx.addCookies([{ name: "asky_ws", value: cookie.slice("asky_ws=".length), url: BASE }]);
+  const page = await ctx.newPage();
   page.on("console", (m) => m.type() === "error" && errors.push(`[console] ${m.text()}`));
   page.on("pageerror", (e) => errors.push(`[pageerror] ${e.message}`));
   page.on("response", (r) => r.status() >= 500 && errors.push(`[${r.status()}] ${r.url()}`));
 
-  await fetch(`${BASE}/api/reset`, { method: "POST" });
+  await fetch(`${BASE}/api/reset`, { method: "POST", headers: cookie ? { cookie } : {} });
 
   // ── Capture ──
   await page.goto(`${BASE}/capture?voice=browser`);
+  await page.getByRole("button", { name: /Ledgerline AP/ }).click(); // ERPNext is the default when it is running
   await page.getByRole("button", { name: "Start session" }).click();
   let f = await app(page);
   await f.getByRole("link", { name: "4471" }).click();
@@ -103,6 +110,7 @@ async function main() {
 
   // ── Teach ──
   await page.goto(`${BASE}/teach?voice=browser`);
+  await page.getByRole("button", { name: /Ledgerline AP/ }).click();
   await page.getByRole("button", { name: "Start training" }).click();
   f = await app(page);
   await f.getByRole("link", { name: "5101" }).click();

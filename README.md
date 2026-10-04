@@ -28,6 +28,9 @@ Open http://localhost:3210 → **Capture** (expert), **Hub** (knowledge), **Teac
 | `pnpm simulate` | end-to-end run through the HTTP API (capture → debrief → teach-back → knowledge → tutor blocks 4 wrong decisions) |
 | `pnpm e2e` | browser test of the whole UI (Playwright, typed answers instead of voice), screenshots in `e2e-shots/` |
 | `pnpm setup:voice` | creates the ElevenLabs agent (prompt, `skip_turn`, overrides) → put the id in `.env.local` |
+| `pnpm seed:erpnext [--reset]` | seeds a local ERPNext with the same story (see *Real-app showcase*) |
+| `pnpm e2e:erpnext [--keep]` | end-to-end on ERPNext, vision only: capture → debrief → teach-back → pages → tutor catches |
+| `pnpm make:interview` | generates the German demo interview with ElevenLabs voices |
 
 On Ubuntu 20.04 Playwright's Chromium needs: `PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=ubuntu22.04-x64 pnpm exec playwright install chromium-headless-shell`.
 
@@ -35,9 +38,11 @@ On Ubuntu 20.04 Playwright's Chromium needs: `PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=
 
 | Key | Upgrades | Without it |
 |---|---|---|
-| `ANTHROPIC_API_KEY` | question phrasing, knowledge extraction, debrief gaps, teach-back, vision (Excel/Outlook frames), MCP descriptions | templates + pattern extractor |
+| `ANTHROPIC_API_KEY` | question phrasing, knowledge extraction, debrief gaps, teach-back, vision (Excel/Outlook frames, ERPNext screens), MCP descriptions + alignment | templates + pattern extractor (ERPNext capture needs it) |
 | `TYPESAFE_API_KEY` | **Jev** decides interrupts in 70–500 ms with calibrated probabilities | deterministic rule scorer (<1 ms) |
-| `ELEVENLABS_API_KEY` + `ELEVENLABS_AGENT_ID` | ElevenAgents voice (VAD, turn-taking, `skip_turn`, Expressive Mode) | browser `speechSynthesis` + Web Speech recognition; text input always works |
+| `ELEVENLABS_API_KEY` + `ELEVENLABS_AGENT_ID` | ElevenAgents voice (VAD, turn-taking, `skip_turn`, Expressive Mode); Scribe for recorded interviews | browser `speechSynthesis` + Web Speech recognition; text input always works |
+| `ERPNEXT_URL` / `ERPNEXT_USER` / `ERPNEXT_PASSWORD` | the real-app showcase (defaults: `http://localhost:8080`, `Administrator`, `admin`) | ERPNext option disabled |
+| `ERPNEXT_PUBLIC_URL` | where the browser reaches ERPNext when it differs from `ERPNEXT_URL` (asky in Docker) | `ERPNEXT_URL` |
 
 ## The three modules
 
@@ -77,10 +82,65 @@ src/
   lib/mcp/             generate (harness) · catalog (request ↔ tool)
   components/voice/    ElevenLabs / browser voice behind one interface
 harness/               discover.ts (CLI) · crawl.ts (Playwright) · mcp-server.ts
-scripts/               simulate.ts · e2e-ui.ts · setup-elevenlabs.ts
+  lib/erpnext/          client · model · seed · mirror (case model) · observe (vision → events)
+  lib/voice/stt.ts     ElevenLabs Scribe (diarized speech-to-text)
+harness/frappe.ts      Frappe/ERPNext adapter: DocType metadata → spec, login crawl
+scripts/               simulate.ts · e2e-ui.ts · e2e-erpnext.ts · seed-erpnext.ts · make-interview-audio.ts · setup-elevenlabs.ts
 data/                  db.json, frames/, generated/ (runtime, git-ignored)
 ```
 
-## Next: a real app
+## Real-app showcase: ERPNext, vision only
 
-The harness is app-agnostic. For a showcase on a real open-source invoicing app (e.g. InvoiceShelf / Invoice Ninja): run it locally, `pnpm harness --url http://localhost:8000 --app invoiceshelf --openapi <spec path> --start /admin/invoices`, then capture through a small browser extension (or proxy) that forwards XHRs as `asky:api` messages — everything downstream (graph, pages, gate, MCP) stays the same.
+The same apprentice on a real ERP it cannot instrument. asky sees only the shared screen; ERPNext's API is used read-only to confirm what was committed.
+
+```bash
+git clone https://github.com/frappe/frappe_docker ~/erpnext && cd ~/erpnext && docker compose -f pwd.yml up -d   # → http://localhost:8080, Administrator / admin
+pnpm seed:erpnext                 # setup wizard, Keller Maschinenbau, cost centers, suppliers, approval workflow, the AP queue
+pnpm harness --frappe "Purchase Invoice,Supplier,Cost Center" --url http://localhost:8080 --app erpnext \
+             --start /app/purchase-invoice/<ACC-PINV-…>   # metadata → domain MCP, aligned with the hub's vocabulary
+pnpm e2e:erpnext                  # Playwright plays Sabine and Lena in ERPNext; frames go through vision → events → questions → pages → tutor
+```
+
+- **Harness without OpenAPI.** Frappe describes itself: DocType form sections become tools (`update_purchase_invoice_accounting_dimensions`), submittable doctypes get `submit/cancel` (irreversible), the active workflow becomes one tool per transition (`request_approval_…`, `post_…`, `hold_…`). The crawl logs in, opens a real invoice, clicks through *Actions → Post → Yes* with mutations intercepted. `alignCatalog` then maps every step the knowledge hub speaks (`set_invoice_coding`, `hold_invoice`, `post_invoice`, …) onto ERPNext's tools — **11/11 found**, with argument mappings and notes where ERPNext differs (approver chosen by workflow role; hold reason is a comment). See `/hub/tools?app=erpnext`.
+- **Vision capture.** Each changed frame (1600 px) → Claude Haiku reads a structured screen state (`view, invoiceRef, costCenter, status, dialog, …`) → consecutive states are diffed into the same domain events (`get_invoice`, `set_invoice_coding 4711 → 0400`, `request_approval`, `hold_invoice`, `post_invoice`) → each committed change is confirmed against ERPNext's REST API before it can become knowledge. ~2 s per frame.
+- **Pre-commit moment.** ERPNext asks *"Are you sure you want to Post?"* — when vision sees that dialog, Capture holds the open question, and **Teach blocks**: the tutor says "Stop — don't click Yes" with Sabine's quote before anything is saved.
+- **Same knowledge, any app.** ERPNext invoices are mirrored into asky's case model, so pages, guardrails, predictions and the gate run unchanged; suppliers are matched by name across apps. Capture and Teach both offer *Ledgerline AP (instrumented)* or *ERPNext (vision only)*.
+
+## Recorded interviews (any language)
+
+`pnpm make:interview` generates a 3½-minute German interview with two ElevenLabs voices (interviewer + Sabine, fictional), `public/demo/interview-sabine-de.mp3`. **Interview → Recorded interview → Import** (or upload any audio): ElevenLabs **Scribe v2** transcribes with word timestamps and speaker diarization, the asking speaker is recognized as the interviewer, the expert's words become *stated* knowledge — pages written in English with verbatim German quotes + translation, and every quote replays from the recording (`▶ play recording`). It both corroborates captured pages and adds what no screen shows (Skonto deadlines, bank-detail fraud call-back, four-eyes for new suppliers, the €800 low-value-asset line, the backup approver).
+
+## Deploy (demo server)
+
+asky and ERPNext run on one VPS behind Caddy (HTTPS is required for screen sharing and the microphone):
+
+- `https://asky.2-31-1-203.sslip.io` — asky (basic auth), image `ghcr.io/appeon-a-lew/asky`
+- `https://erp.2-31-1-203.sslip.io` — ERPNext (its own login)
+
+| file | on the server |
+|---|---|
+| `deploy/compose.yml`, `deploy/Caddyfile` | `/opt/asky` — asky + Caddy; `asky.env` (keys, never in git), `data/` (volume) |
+| `deploy/erpnext-compose.yml` | `/opt/erpnext` — frappe_docker `pwd.yml`, no published ports |
+| `deploy/deploy.sh` | `/opt/asky/deploy.sh` — the only command the deploy key may run |
+
+Every push to `main` (or a manual run of **Build and deploy**) builds the image, pushes `sha-<commit>` and `latest` to GitHub Container Registry, and deploys over SSH: the deploy key is a forced command that pulls the tag with the job's short-lived `GITHUB_TOKEN` and restarts asky. Set the repository secret `DEPLOY_SSH_KEY` to the deploy key's private key; without it the image is pushed but not deployed. Roll back by re-running an older workflow run, or on the server: `sed -i 's/^ASKY_TAG=.*/ASKY_TAG=sha-abc1234/' /opt/asky/.env && docker compose -f /opt/asky/compose.yml up -d asky`.
+
+## Public demo: landing page + audience workspaces
+
+`/` is a public landing page built from real runs (`pnpm landing [--vision]` writes `public/landing/`: the ERPNext e2e frames with asky's own readings, Jev's logged decisions, the generated harness, a confirmed page, the Schmidt story).
+
+With `ASKY_SECRET` set, the app is gated (`src/proxy.ts`): a signed `asky_ws` cookie decides the workspace, and every route handler runs inside it (`withWorkspace`, `src/lib/workspace.ts`).
+
+- **Audience** — the event code (`ASKY_EVENT_CODE`) creates a private workspace (`data/workspaces/v-…`) from a clean template: Ledgerline only, guided at `/start`, deleted after `ASKY_WORKSPACE_TTL_HOURS`. Budgets per workspace (AI calls, TTS characters; over them asky falls back to heuristics and the browser voice), a few shared live-voice seats, a global cap. No screen frames, audio uploads, ERPNext or harness writes.
+- **Presenter** — `/presenter` with `ASKY_PRESENTER_PASSWORD` → the main workspace (ERPNext, the curated knowledge).
+- Fail-closed: inside the gated server a request without a workspace never reaches the main data. Without `ASKY_SECRET` (local development, scripts) everything is the main workspace, as before.
+- `ASKY_URL=… ASKY_EVENT_CODE=… pnpm e2e` runs the full UI test as an audience member.
+
+## Demo script (≈ 8 min)
+
+1. **Interview** → *Import sample* — German recording → transcript → 6 new pages, 3 updated (stretch goal: explained in German, taught in English).
+2. **Capture** → *ERPNext · vision only* → Start → share the ERPNext tab. Work 4471 (recode 4711 → 0400 + asset number, Post), 4472 (Request Approval → Approve → Post), 4473 (supplier list filtered to Nordlicht, comment, Hold). asky asks at pauses; the "asky sees" strip shows what vision reads. **End task → debrief** (≥ 3 questions) → teach-back → "Yes".
+3. **Hub** → Work Map (real ERPNext screen moments), pages with provenance, **Domain MCP → erpnext** (11/11 aligned).
+4. **Teach** → *ERPNext* → Lena opens 5101 and tries to post it on opex → the tutor stops her at the confirm dialog, in Sabine's words; 5102 without approval → stopped again; mastery map.
+
+Reset between runs: *Fresh demo* in Capture resets asky's knowledge and recreates the ERPNext queue (`pnpm seed:erpnext --reset` does the same from the shell).

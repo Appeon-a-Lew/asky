@@ -18,8 +18,9 @@ export const api = {
   offRecord: (sid: string, on: boolean) => j("POST", `/api/sessions/${sid}/off-record`, { on }),
   debrief: (sid: string) => j<{ questions: Question[] }>("POST", `/api/sessions/${sid}/debrief`),
   teachBack: (sid: string) => j<{ text: string; situations: number; by: string }>("POST", `/api/sessions/${sid}/teachback`, {}),
+  teachBackReply: (sid: string, reply: string) => j<{ kind: "confirm" | "correct" | "unclear" }>("POST", `/api/sessions/${sid}/teachback`, { reply }),
   confirm: (sid: string, confirmed: boolean, corrections?: string) =>
-    j<{ committed?: { changed: { pageId: string; title: string; created: boolean; added: string[] }[]; lessons: string[] }; again?: { text: string } }>("POST", `/api/sessions/${sid}/teachback`, { confirmed, corrections }),
+    j<{ committed?: { changed: { pageId: string; title: string; created: boolean; added: string[] }[]; lessons: string[]; conflicts?: { pageId: string; title: string; kind: string; summary: string }[]; blacklist?: { id: string; action: "add" | "remove"; supplierName: string; quote: string }[] }; again?: { text: string } }>("POST", `/api/sessions/${sid}/teachback`, { confirmed, corrections }),
 };
 
 export interface Recognized {

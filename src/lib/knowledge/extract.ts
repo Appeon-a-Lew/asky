@@ -50,6 +50,7 @@ export const CONTEXT_FIELDS = {
   "supplier.isSubsidiary": "boolean, group company",
   "supplier.isNew": "boolean, never seen in earlier sessions",
   "supplier.priorInvoicesSameAmount": "number of earlier invoices from this supplier with the same amount",
+  "supplier.blacklisted": "boolean, the supplier is currently on the company blacklist (kept, dated, in the hub) — use this instead of naming a supplier when a rule is about the blacklist",
 };
 
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60);
@@ -96,6 +97,8 @@ Rules:
 - guardrails: things a new hire must not get wrong. Give each a machine-checkable rule when possible: rule.onTool is the tool the check runs before (usually post_invoice), rule.when = triggers, then either require (conditions that must hold), requirePriorTool (a tool that must have happened in the case), or forbid=true.
 - steps refer to tool names where possible: ${(d.tools?.tools ?? []).map((t) => t.name).join(", ")}.
 - If an existing page covers the same situation, reuse its key so it gets updated (add edge cases instead of duplicating).
+- Facts that change over time (who is on a blacklist, who approves, current thresholds) are not the situation itself: title the page by the lasting rule ("Invoices from blacklisted suppliers go on hold"), and state the current value in a step or reason with who said it, not in the title.
+- Language: write titles, situations, steps, guardrails and explanations in English (the hub's language), whatever language the expert spoke. Quotes stay verbatim in the original language; if that is not English, append the English translation in square brackets, e.g. "Über 5.000 Euro ist das Capex. [Over 5,000 euros that is capex.]".
 - openQuestions: what is still unclear and should be asked next time.
 - orderAnswers: when the expert said whether the order of steps matters.`,
     prompt: JSON.stringify({
@@ -110,7 +113,22 @@ Rules:
     name: "knowledge_draft",
     maxTokens: 8000,
   });
-  return { ...out, situations: out.situations.map((x) => ({ ...x, key: x.key || slug(x.title) })), by: "llm" };
+  // the model may leave out optional lists: everything downstream (commit, Work Map) expects arrays
+  const casesOf = (sit: DraftSituation) => cases.filter((c) => s.events.some((e) => e.caseId === c && e.tool && (sit.steps ?? []).some((st) => st.tool === e.tool)));
+  const situations = out.situations.map((x) => ({
+    ...x,
+    key: x.key || slug(x.title),
+    triggers: x.triggers ?? [],
+    recognize: x.recognize ?? [],
+    steps: x.steps ?? [],
+    why: x.why ?? [],
+    guardrails: x.guardrails ?? [],
+    edgeCases: x.edgeCases ?? [],
+    troubleshooting: x.troubleshooting ?? [],
+    openQuestions: x.openQuestions ?? [],
+    caseIds: x.caseIds ?? casesOf(x),
+  }));
+  return { ...out, situations, orderAnswers: out.orderAnswers ?? [], by: "llm" };
 }
 
 const condSchema = {

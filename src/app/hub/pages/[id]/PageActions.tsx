@@ -8,6 +8,13 @@ export default function PageActions({ pageId, status }: { pageId: string; status
   const router = useRouter();
   const [edge, setEdge] = useState("");
   const [open, setOpen] = useState(false);
+  const [checking, setChecking] = useState<string | null>(null);
+  const recheck = async () => {
+    setChecking("Checking…");
+    const r = await fetch(`/api/pages/${pageId}/conflicts`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ recheck: true }) }).then((x) => x.json()).catch(() => ({ conflicts: [] }));
+    setChecking(r.conflicts?.length ? null : "No contradictions found");
+    router.refresh();
+  };
   const patch = async (body: Record<string, unknown>) => {
     await fetch(`/api/pages/${pageId}`, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
     router.refresh();
@@ -18,7 +25,9 @@ export default function PageActions({ pageId, status }: { pageId: string; status
         {status !== "confirmed" && <button onClick={() => patch({ status: "confirmed" })} className="rounded-md bg-emerald-700 px-3 py-1.5 text-white">Confirm</button>}
         {status !== "stale" && <button onClick={() => patch({ status: "stale" })} className="rounded-md border border-stone-300 px-3 py-1.5">Mark outdated</button>}
         <button onClick={() => setOpen((o) => !o)} className="rounded-md border border-stone-300 px-3 py-1.5">+ Edge case</button>
+        <button onClick={recheck} disabled={checking === "Checking…"} title="Compare the latest session with what the page said before" className="rounded-md border border-stone-300 px-3 py-1.5 disabled:opacity-50">Check for conflicts</button>
       </div>
+      {checking && <div className="text-xs text-stone-500">{checking}</div>}
       {open && (
         <form className="flex w-96 gap-2" onSubmit={(e) => { e.preventDefault(); if (edge.trim()) patch({ addEdgeCase: edge.trim() }).then(() => { setEdge(""); setOpen(false); }); }}>
           <input autoFocus value={edge} onChange={(e) => setEdge(e.target.value)} placeholder="e.g. Leasing equipment stays opex" className="flex-1 rounded-md border border-stone-300 px-2 py-1 text-sm" />
