@@ -1,0 +1,1397 @@
+{
+ "sessions": [
+  {
+   "id": "S-mutt2zge3ehtr",
+   "mode": "capture",
+   "target": "erpnext",
+   "personId": "thomas",
+   "title": "Month-end queue in ERPNext (Thomas)",
+   "startedAt": 1791117447422,
+   "phase": "done",
+   "events": [
+    {
+     "id": "E-mutt377kl5381",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117455729,
+     "kind": "tool",
+     "tool": "get_invoice",
+     "args": {
+      "id": "ACC-PINV-2026-00004"
+     },
+     "effect": "read",
+     "ok": true,
+     "caseId": "ACC-PINV-2026-00004",
+     "frameId": "F-mutt35w05clbf",
+     "summary": "opened invoice 4469 — Hydrotec Antriebe GmbH, €2.140, Hydraulic seal kits"
+    },
+    {
+     "id": "E-mutt3d47h2cjz",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117463539,
+     "kind": "tool",
+     "tool": "post_invoice",
+     "args": {
+      "id": "ACC-PINV-2026-00004"
+     },
+     "effect": "irreversible",
+     "ok": true,
+     "caseId": "ACC-PINV-2026-00004",
+     "frameId": "F-mutt3bwyclcqz",
+     "summary": "posted invoice 4469"
+    },
+    {
+     "id": "E-mutt3h5n0fgti",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117468723,
+     "kind": "tool",
+     "tool": "get_invoice",
+     "args": {
+      "id": "ACC-PINV-2026-00006"
+     },
+     "effect": "read",
+     "ok": true,
+     "caseId": "ACC-PINV-2026-00006",
+     "frameId": "F-mutt3fwx2e38d",
+     "summary": "opened invoice 4471 — Fräswerk Ulm GmbH, €7.850, CNC spindle unit SP-220"
+    },
+    {
+     "id": "E-mutt3mufsk6ur",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117476306,
+     "kind": "tool",
+     "tool": "set_invoice_coding",
+     "args": {
+      "id": "ACC-PINV-2026-00006",
+      "costCenter": "0400",
+      "assetNumber": "AN-2025-0142",
+      "__changed": {
+       "from": "4711",
+       "to": "0400"
+      }
+     },
+     "effect": "write",
+     "ok": true,
+     "caseId": "ACC-PINV-2026-00006",
+     "frameId": "F-mutt3lrkdrnd6",
+     "summary": "invoice 4471: cost center 4711 → 0400, asset AN-2025-0142"
+    },
+    {
+     "id": "E-mutt3tvndpu0k",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117484307,
+     "kind": "tool",
+     "tool": "post_invoice",
+     "args": {
+      "id": "ACC-PINV-2026-00006"
+     },
+     "effect": "irreversible",
+     "ok": true,
+     "caseId": "ACC-PINV-2026-00006",
+     "frameId": "F-mutt3rxzz1reg",
+     "summary": "posted invoice 4471"
+    },
+    {
+     "id": "E-mutt40b0zuz0y",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117490547,
+     "kind": "tool",
+     "tool": "get_invoice",
+     "args": {
+      "id": "ACC-PINV-2026-00007"
+     },
+     "effect": "read",
+     "ok": true,
+     "caseId": "ACC-PINV-2026-00007",
+     "frameId": "F-mutt3wrjs41h2",
+     "summary": "opened invoice 4472 — Keller CZ s.r.o., €3.200,4, Intercompany machining services Nov"
+    },
+    {
+     "id": "E-mutt477b9xciq",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117502390,
+     "kind": "tool",
+     "tool": "request_approval",
+     "args": {
+      "id": "ACC-PINV-2026-00007",
+      "approver": "Controlling",
+      "role": "controller"
+     },
+     "effect": "write",
+     "ok": true,
+     "caseId": "ACC-PINV-2026-00007",
+     "frameId": "F-mutt45we6yobg",
+     "summary": "sent invoice 4472 to the controller for approval"
+    },
+    {
+     "id": "E-mutt4jsa0efgx",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117519020,
+     "kind": "tool",
+     "tool": "post_invoice",
+     "args": {
+      "id": "ACC-PINV-2026-00007"
+     },
+     "effect": "irreversible",
+     "ok": true,
+     "caseId": "ACC-PINV-2026-00007",
+     "frameId": "F-mutt4iq0pfnby",
+     "summary": "posted invoice 4472"
+    },
+    {
+     "id": "E-mutt4mq9g2y03",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117522536,
+     "kind": "tool",
+     "tool": "get_invoice",
+     "args": {
+      "id": "ACC-PINV-2026-00008"
+     },
+     "effect": "read",
+     "ok": true,
+     "caseId": "ACC-PINV-2026-00008",
+     "frameId": "F-mutt4lfnbn7gx",
+     "summary": "opened invoice 4473 — Nordlicht Bürobedarf GmbH, €1.284,5, Office supplies Q4"
+    },
+    {
+     "id": "E-mutt4p2paam0n",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117526035,
+     "kind": "tool",
+     "tool": "get_supplier_history",
+     "args": {
+      "id": "Nordlicht Bürobedarf GmbH"
+     },
+     "effect": "read",
+     "ok": true,
+     "caseId": "ACC-PINV-2026-00008",
+     "frameId": "F-mutt4o508ttyn",
+     "summary": "checked invoice history of supplier Nordlicht Bürobedarf GmbH"
+    },
+    {
+     "id": "E-mutt4yfjirr2w",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117537737,
+     "kind": "tool",
+     "tool": "hold_invoice",
+     "args": {
+      "id": "ACC-PINV-2026-00008",
+      "reason": ""
+     },
+     "effect": "write",
+     "ok": true,
+     "caseId": "ACC-PINV-2026-00008",
+     "frameId": "F-mutt4x5vo4rhc",
+     "summary": "put invoice 4473 on hold"
+    }
+   ],
+   "frames": [
+    {
+     "id": "F-mutt330ip5m7o",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117452004,
+     "file": "S-mutt2zge3ehtr/F-mutt330ip5m7o.jpg"
+    },
+    {
+     "id": "F-mutt35w05clbf",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117455729,
+     "file": "S-mutt2zge3ehtr/F-mutt35w05clbf.jpg"
+    },
+    {
+     "id": "F-mutt3859fhkcr",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117458657,
+     "file": "S-mutt2zge3ehtr/F-mutt3859fhkcr.jpg"
+    },
+    {
+     "id": "F-mutt3bwyclcqz",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117463539,
+     "file": "S-mutt2zge3ehtr/F-mutt3bwyclcqz.jpg"
+    },
+    {
+     "id": "F-mutt3fwx2e38d",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117468723,
+     "file": "S-mutt2zge3ehtr/F-mutt3fwx2e38d.jpg"
+    },
+    {
+     "id": "F-mutt3i6snriun",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117471672,
+     "file": "S-mutt2zge3ehtr/F-mutt3i6snriun.jpg"
+    },
+    {
+     "id": "F-mutt3lrkdrnd6",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117476306,
+     "file": "S-mutt2zge3ehtr/F-mutt3lrkdrnd6.jpg"
+    },
+    {
+     "id": "F-mutt3ozkapkb9",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117480475,
+     "file": "S-mutt2zge3ehtr/F-mutt3ozkapkb9.jpg"
+    },
+    {
+     "id": "F-mutt3rxzz1reg",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117484307,
+     "file": "S-mutt2zge3ehtr/F-mutt3rxzz1reg.jpg"
+    },
+    {
+     "id": "F-mutt3wrjs41h2",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117490547,
+     "file": "S-mutt2zge3ehtr/F-mutt3wrjs41h2.jpg"
+    },
+    {
+     "id": "F-mutt4222nx626",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117497405,
+     "file": "S-mutt2zge3ehtr/F-mutt4222nx626.jpg"
+    },
+    {
+     "id": "F-mutt45we6yobg",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117502390,
+     "file": "S-mutt2zge3ehtr/F-mutt45we6yobg.jpg"
+    },
+    {
+     "id": "F-mutt4ac9r7uqz",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117508154,
+     "file": "S-mutt2zge3ehtr/F-mutt4ac9r7uqz.jpg"
+    },
+    {
+     "id": "F-mutt4exzg2wf4",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117514122,
+     "file": "S-mutt2zge3ehtr/F-mutt4exzg2wf4.jpg"
+    },
+    {
+     "id": "F-mutt4iq0pfnby",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117519020,
+     "file": "S-mutt2zge3ehtr/F-mutt4iq0pfnby.jpg"
+    },
+    {
+     "id": "F-mutt4lfnbn7gx",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117522536,
+     "file": "S-mutt2zge3ehtr/F-mutt4lfnbn7gx.jpg"
+    },
+    {
+     "id": "F-mutt4o508ttyn",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117526035,
+     "file": "S-mutt2zge3ehtr/F-mutt4o508ttyn.jpg"
+    },
+    {
+     "id": "F-mutt4rxdfhd7o",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117530952,
+     "file": "S-mutt2zge3ehtr/F-mutt4rxdfhd7o.jpg"
+    },
+    {
+     "id": "F-mutt4ucxowigm",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117534103,
+     "file": "S-mutt2zge3ehtr/F-mutt4ucxowigm.jpg"
+    },
+    {
+     "id": "F-mutt4x5vo4rhc",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117537737,
+     "file": "S-mutt2zge3ehtr/F-mutt4x5vo4rhc.jpg"
+    }
+   ],
+   "transcript": [
+    {
+     "id": "U-mutt3e2nz8cgt",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117466336,
+     "speaker": "agent",
+     "text": "Why did you post invoice 4469 before assigning its cost code—is there a threshold where pre-coding becomes mandatory?",
+     "questionId": "Q-mutt3e0nfw2p5"
+    },
+    {
+     "id": "U-mutt3e36cpw6v",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117466371,
+     "speaker": "expert",
+     "text": "If the line category matches the pre-coded cost center, like freight on four eight zero zero, I leave it. I only touch the coding when it doesn't fit.",
+     "questionId": "Q-mutt3e0nfw2p5"
+    },
+    {
+     "id": "U-mutt3h6g897xd",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117470366,
+     "speaker": "expert",
+     "text": "Hmm, wait. Where is the asset number? Okay, got it."
+    },
+    {
+     "id": "U-mutt3nxraps9y",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117479119,
+     "speaker": "agent",
+     "text": "Why did you switch invoice 4471 from opex cost center 4711 to capex 0400 for the CNC spindle—does the asset tag AN-2025-0142 trigger that rule?",
+     "questionId": "Q-mutt3nvxyak5c"
+    },
+    {
+     "id": "U-mutt3nyycdfpv",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117479156,
+     "speaker": "expert",
+     "text": "That's a spindle unit, so it's equipment. Anything over five thousand euros gross is CapEx, so it goes to zero four zero zero, not maintenance. And no asset number, no CapEx booking.",
+     "questionId": "Q-mutt3nvxyak5c"
+    },
+    {
+     "id": "U-mutt49bxhgjm4",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117506836,
+     "speaker": "agent",
+     "text": "Invoice 4472 is €3,200.40—why skip the coding step and send it straight to the controller when your rule says amounts over €10,000 need approval?",
+     "questionId": "Q-mutt499ngpkwj"
+    },
+    {
+     "id": "U-mutt49cu58ggw",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117506882,
+     "speaker": "expert",
+     "text": "Everything from Czech subsidiary goes to Dr. Fisher in controlling for a second approval, no matter the amount. I never post intercompany without the controller.",
+     "questionId": "Q-mutt499ngpkwj"
+    },
+    {
+     "id": "U-mutt4zd564hxz",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117540588,
+     "speaker": "agent",
+     "text": "Invoice 4473 is €1,284.50 for office supplies—why put it on hold instead of coding it like the previous invoices?",
+     "questionId": "Q-mutt4zbatv82o"
+    },
+    {
+     "id": "U-mutt4zdpe3qvw",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117540622,
+     "speaker": "expert",
+     "text": "Nordlicht double bills every December. This one has exactly the same amount as four four six eight, so it's a duplicate. I put it on hold and ask them for a credit one.",
+     "questionId": "Q-mutt4zbatv82o"
+    },
+    {
+     "id": "U-mutt53purqwfx",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117546219,
+     "speaker": "agent",
+     "text": "For the Fräswerk Ulm spindle on invoice 4471, what would you do if the invoice was over five thousand euros but had no asset number yet—hold it, ask someone, or book it as maintenance?",
+     "questionId": "Q-mutt53nkph5gf"
+    },
+    {
+     "id": "U-mutt53qdjk21k",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117546263,
+     "speaker": "expert",
+     "text": "That's a spindle unit, so it's equipment. Anything over five thousand euros gross is CapEx, so it goes to zero four zero zero, not maintenance. And no asset number, no CapEx booking.",
+     "questionId": "Q-mutt53nkph5gf"
+    },
+    {
+     "id": "U-mutt53s08fs1x",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117546306,
+     "speaker": "agent",
+     "text": "If Nordlicht's December invoice matched an earlier one in amount but had a different PO or delivery date, would you still treat it as a duplicate and hold it?",
+     "questionId": "Q-mutt53nktistn"
+    },
+    {
+     "id": "U-mutt53skwx3vk",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117546340,
+     "speaker": "expert",
+     "text": "Nordlicht double bills every December. This one has exactly the same amount as four four six eight, so it's a duplicate. I put it on hold and ask them for a credit one.",
+     "questionId": "Q-mutt53nktistn"
+    },
+    {
+     "id": "U-mutt53tmz955z",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117546379,
+     "speaker": "agent",
+     "text": "If Dr. Fisher in controlling is away and invoice 4472 from Keller CZ is close to its due date, who else can approve the intercompany invoice, or do you just let it wait?",
+     "questionId": "Q-mutt53nkq7p8e"
+    },
+    {
+     "id": "U-mutt53uewnn7o",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117546398,
+     "speaker": "expert",
+     "text": "Everything from Czech subsidiary goes to Dr. Fisher in controlling for a second approval, no matter the amount. I never post intercompany without the controller.",
+     "questionId": "Q-mutt53nkq7p8e"
+    },
+    {
+     "id": "U-mutt53wfofo7z",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117546462,
+     "speaker": "agent",
+     "text": "Is the five-thousand-euro CapEx threshold you used for the Fräswerk spindle measured gross or net, and does it apply per line or for the whole invoice?",
+     "questionId": "Q-mutt53nkefh4c"
+    },
+    {
+     "id": "U-mutt53xbdo4kz",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117546498,
+     "speaker": "expert",
+     "text": "That's a spindle unit, so it's equipment. Anything over five thousand euros gross is CapEx, so it goes to zero four zero zero, not maintenance. And no asset number, no CapEx booking.",
+     "questionId": "Q-mutt53nkefh4c"
+    },
+    {
+     "id": "U-mutt53zcqqc1d",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117546561,
+     "speaker": "agent",
+     "text": "Why check Nordlicht's history now—does a supplier's payment record trigger a different coding rule than the invoice amount or category?",
+     "questionId": "Q-mutt4q35mfsay"
+    },
+    {
+     "id": "U-mutt53zwhaze5",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117546604,
+     "speaker": "expert",
+     "text": "Nordlicht double bills every December. This one has exactly the same amount as four four six eight, so it's a duplicate. I put it on hold and ask them for a credit one.",
+     "questionId": "Q-mutt4q35mfsay"
+    },
+    {
+     "id": "U-mutt682fvt2qi",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117598514,
+     "speaker": "expert",
+     "text": "Yes, that's exactly how it works."
+    }
+   ],
+   "questions": [
+    {
+     "id": "Q-mutt3e0nfw2p5",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117463539,
+     "caseId": "ACC-PINV-2026-00004",
+     "eventId": "E-mutt3d47h2cjz",
+     "frameId": "F-mutt3bwyclcqz",
+     "kind": "order",
+     "timing": "pre_commit",
+     "text": "Why did you post invoice 4469 before assigning its cost code—is there a threshold where pre-coding becomes mandatory?",
+     "importance": 0.965,
+     "status": "answered",
+     "decision": {
+      "engine": "jev",
+      "action": "ask_before_commit",
+      "deviationType": "skip",
+      "importance": 0.965,
+      "questionKind": "order",
+      "isTroubleshooting": true,
+      "probabilities": {
+       "queue_debrief": 0.1,
+       "ignore": 0.01,
+       "ask_before_commit": 0.76,
+       "ask_now": 0.13
+      },
+      "confidence": 0.68,
+      "latencyMs": 286.6,
+      "rulesAction": "ask_before_commit"
+     },
+     "deviation": {
+      "novelty": 0.2,
+      "uncertainty": 1,
+      "irreversibleNext": true,
+      "expected": [
+       "set_invoice_coding"
+      ],
+      "type": "skip",
+      "detail": "Skipped set_invoice_coding before post_invoice",
+      "surprise": 0.8
+     },
+     "dedupeKey": "ACC-PINV-2026-00004:skip:post_invoice",
+     "askedAt": 1791117466333,
+     "answer": "If the line category matches the pre-coded cost center, like freight on four eight zero zero, I leave it. I only touch the coding when it doesn't fit.",
+     "answerUtteranceIds": [
+      "U-mutt3e36cpw6v"
+     ]
+    },
+    {
+     "id": "Q-mutt3nvxyak5c",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117476306,
+     "caseId": "ACC-PINV-2026-00006",
+     "eventId": "E-mutt3mufsk6ur",
+     "frameId": "F-mutt3lrkdrnd6",
+     "kind": "why",
+     "timing": "pre_commit",
+     "text": "Why did you switch invoice 4471 from opex cost center 4711 to capex 0400 for the CNC spindle—does the asset tag AN-2025-0142 trigger that rule?",
+     "importance": 0.985,
+     "status": "answered",
+     "decision": {
+      "engine": "jev",
+      "action": "ask_before_commit",
+      "deviationType": "value_change",
+      "importance": 0.985,
+      "questionKind": "why",
+      "isTroubleshooting": true,
+      "probabilities": {
+       "queue_debrief": 0.04,
+       "ignore": 0.02,
+       "ask_now": 0.26,
+       "ask_before_commit": 0.67
+      },
+      "confidence": 0.56,
+      "latencyMs": 274.4,
+      "rulesAction": "ask_before_commit"
+     },
+     "deviation": {
+      "novelty": 0.2,
+      "uncertainty": 1,
+      "irreversibleNext": true,
+      "expected": [
+       "set_invoice_coding"
+      ],
+      "type": "value_change",
+      "detail": "Changed set invoice coding 4711 (opex) → 0400 (capex)",
+      "surprise": 1
+     },
+     "dedupeKey": "ACC-PINV-2026-00006:value_change:set_invoice_coding",
+     "askedAt": 1791117479116,
+     "answer": "That's a spindle unit, so it's equipment. Anything over five thousand euros gross is CapEx, so it goes to zero four zero zero, not maintenance. And no asset number, no CapEx booking.",
+     "answerUtteranceIds": [
+      "U-mutt3nyycdfpv"
+     ]
+    },
+    {
+     "id": "Q-mutt499ngpkwj",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117502390,
+     "caseId": "ACC-PINV-2026-00007",
+     "eventId": "E-mutt477b9xciq",
+     "frameId": "F-mutt45we6yobg",
+     "kind": "contradiction",
+     "timing": "pre_commit",
+     "text": "Invoice 4472 is €3,200.40—why skip the coding step and send it straight to the controller when your rule says amounts over €10,000 need approval?",
+     "importance": 1,
+     "status": "answered",
+     "decision": {
+      "engine": "rules",
+      "action": "ask_before_commit",
+      "deviationType": "doc_contradiction",
+      "importance": 1,
+      "questionKind": "contradiction",
+      "isTroubleshooting": false,
+      "latencyMs": 316.2,
+      "rulesAction": "ask_before_commit",
+      "probabilities": {
+       "ignore": 0.5,
+       "ask_now": 0.15,
+       "queue_debrief": 0.17,
+       "ask_before_commit": 0.18
+      },
+      "confidence": 0.33,
+      "fellBack": "Jev confidence 0.33 < 0.45"
+     },
+     "deviation": {
+      "novelty": 0.2,
+      "uncertainty": 1,
+      "irreversibleNext": true,
+      "expected": [
+       "set_invoice_coding"
+      ],
+      "type": "doc_contradiction",
+      "detail": "Process says \"amount > €10,000\" but this case does not meet it",
+      "surprise": 0.9,
+      "docContradiction": "amount > €10,000"
+     },
+     "dedupeKey": "ACC-PINV-2026-00007:doc_contradiction:request_approval",
+     "askedAt": 1791117506833,
+     "answer": "Everything from Czech subsidiary goes to Dr. Fisher in controlling for a second approval, no matter the amount. I never post intercompany without the controller.",
+     "answerUtteranceIds": [
+      "U-mutt49cu58ggw"
+     ]
+    },
+    {
+     "id": "Q-mutt4q35mfsay",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117526035,
+     "caseId": "ACC-PINV-2026-00008",
+     "eventId": "E-mutt4p2paam0n",
+     "frameId": "F-mutt4o508ttyn",
+     "kind": "contradiction",
+     "timing": "debrief",
+     "text": "Why check Nordlicht's history now—does a supplier's payment record trigger a different coding rule than the invoice amount or category?",
+     "importance": 0.315,
+     "status": "answered",
+     "decision": {
+      "engine": "jev",
+      "action": "queue_debrief",
+      "deviationType": "insert",
+      "importance": 0.315,
+      "questionKind": "contradiction",
+      "isTroubleshooting": true,
+      "probabilities": {
+       "ignore": 0.11,
+       "queue_debrief": 0.65,
+       "ask_now": 0.23,
+       "ask_before_commit": 0.01
+      },
+      "confidence": 0.54,
+      "latencyMs": 295.7,
+      "rulesAction": "ask_now"
+     },
+     "deviation": {
+      "novelty": 0.2,
+      "uncertainty": 1,
+      "irreversibleNext": false,
+      "expected": [
+       "set_invoice_coding"
+      ],
+      "type": "insert",
+      "detail": "Step \"get_supplier_history\" is not in the documented process",
+      "surprise": 1
+     },
+     "dedupeKey": "ACC-PINV-2026-00008:insert:get_supplier_history",
+     "askedAt": 1791117546559,
+     "answer": "Nordlicht double bills every December. This one has exactly the same amount as four four six eight, so it's a duplicate. I put it on hold and ask them for a credit one.",
+     "answerUtteranceIds": [
+      "U-mutt53zwhaze5"
+     ]
+    },
+    {
+     "id": "Q-mutt4zbatv82o",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117537737,
+     "caseId": "ACC-PINV-2026-00008",
+     "eventId": "E-mutt4yfjirr2w",
+     "frameId": "F-mutt4x5vo4rhc",
+     "kind": "contradiction",
+     "timing": "live",
+     "text": "Invoice 4473 is €1,284.50 for office supplies—why put it on hold instead of coding it like the previous invoices?",
+     "importance": 0.565,
+     "status": "answered",
+     "decision": {
+      "engine": "jev",
+      "action": "ask_now",
+      "deviationType": "insert",
+      "importance": 0.565,
+      "questionKind": "contradiction",
+      "isTroubleshooting": true,
+      "probabilities": {
+       "queue_debrief": 0.29,
+       "ignore": 0.02,
+       "ask_now": 0.67,
+       "ask_before_commit": 0.02
+      },
+      "confidence": 0.56,
+      "latencyMs": 303.1,
+      "rulesAction": "ask_now"
+     },
+     "deviation": {
+      "novelty": 0.2,
+      "uncertainty": 1,
+      "irreversibleNext": false,
+      "expected": [
+       "set_invoice_coding"
+      ],
+      "type": "insert",
+      "detail": "Step \"hold_invoice\" is not in the documented process",
+      "surprise": 1
+     },
+     "dedupeKey": "ACC-PINV-2026-00008:insert:hold_invoice",
+     "askedAt": 1791117540586,
+     "answer": "Nordlicht double bills every December. This one has exactly the same amount as four four six eight, so it's a duplicate. I put it on hold and ask them for a credit one.",
+     "answerUtteranceIds": [
+      "U-mutt4zdpe3qvw"
+     ]
+    },
+    {
+     "id": "Q-mutt53nkph5gf",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117546176,
+     "caseId": "4471",
+     "kind": "guardrail",
+     "timing": "debrief",
+     "text": "For the Fräswerk Ulm spindle on invoice 4471, what would you do if the invoice was over five thousand euros but had no asset number yet—hold it, ask someone, or book it as maintenance?",
+     "importance": 0.9,
+     "status": "answered",
+     "dedupeKey": "gap:guardrail:4471:For the Fräswerk Ulm spindle on invoice ",
+     "askedAt": 1791117546216,
+     "answer": "That's a spindle unit, so it's equipment. Anything over five thousand euros gross is CapEx, so it goes to zero four zero zero, not maintenance. And no asset number, no CapEx booking.",
+     "answerUtteranceIds": [
+      "U-mutt53qdjk21k"
+     ]
+    },
+    {
+     "id": "Q-mutt53nktistn",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117546176,
+     "caseId": "4473",
+     "kind": "counterfactual",
+     "timing": "debrief",
+     "text": "If Nordlicht's December invoice matched an earlier one in amount but had a different PO or delivery date, would you still treat it as a duplicate and hold it?",
+     "importance": 0.8,
+     "status": "answered",
+     "dedupeKey": "gap:counterfactual:4473:If Nordlicht's December invoice matched ",
+     "askedAt": 1791117546303,
+     "answer": "Nordlicht double bills every December. This one has exactly the same amount as four four six eight, so it's a duplicate. I put it on hold and ask them for a credit one.",
+     "answerUtteranceIds": [
+      "U-mutt53skwx3vk"
+     ]
+    },
+    {
+     "id": "Q-mutt53nkq7p8e",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117546176,
+     "caseId": "4472",
+     "kind": "troubleshoot",
+     "timing": "debrief",
+     "text": "If Dr. Fisher in controlling is away and invoice 4472 from Keller CZ is close to its due date, who else can approve the intercompany invoice, or do you just let it wait?",
+     "importance": 0.8,
+     "status": "answered",
+     "dedupeKey": "gap:troubleshoot:4472:If Dr. Fisher in controlling is away and",
+     "askedAt": 1791117546376,
+     "answer": "Everything from Czech subsidiary goes to Dr. Fisher in controlling for a second approval, no matter the amount. I never post intercompany without the controller.",
+     "answerUtteranceIds": [
+      "U-mutt53uewnn7o"
+     ]
+    },
+    {
+     "id": "Q-mutt53nkefh4c",
+     "sessionId": "S-mutt2zge3ehtr",
+     "ts": 1791117546176,
+     "caseId": "4471",
+     "kind": "why",
+     "timing": "debrief",
+     "text": "Is the five-thousand-euro CapEx threshold you used for the Fräswerk spindle measured gross or net, and does it apply per line or for the whole invoice?",
+     "importance": 0.7,
+     "status": "answered",
+     "dedupeKey": "gap:why:4471:Is the five-thousand-euro CapEx threshol",
+     "askedAt": 1791117546459,
+     "answer": "That's a spindle unit, so it's equipment. Anything over five thousand euros gross is CapEx, so it goes to zero four zero zero, not maintenance. And no asset number, no CapEx booking.",
+     "answerUtteranceIds": [
+      "U-mutt53xbdo4kz"
+     ]
+    }
+   ],
+   "offRecord": [],
+   "screen": {
+    "app": "Buying",
+    "view": "invoice_form",
+    "invoiceRef": "4473",
+    "onHold": true,
+    "status": "On Hold",
+    "section": "Details",
+    "activity": "placed the invoice on hold and added a comment about duplicate invoice 4468",
+    "caption": "The clerk has placed invoice 4473 on hold and commented about a duplicate billing issue.",
+    "ts": 1791117539387
+   },
+   "endedAt": 1791117546176,
+   "teachBack": {
+    "text": "You open each invoice and compare the line category with the pre-coded cost center. If they match, you leave the coding alone and post it, because touching correct coding is wasted work. For equipment over €5,000 gross, you recode it to CapEx cost center 0400, since it's an asset, not maintenance. You only book it there with an asset number. For any group subsidiary like Keller CZ, you get a second approval from the controller, currently Dr. Fisher, before posting. That applies whatever the amount, even below the usual €10,000 threshold. In December, especially with Nordlicht, you check the supplier's history. An identical amount means a duplicate, so you hold it, note which invoice it repeats, and ask for a credit note. Did I get that right?",
+    "confirmed": true,
+    "at": 1791117598510
+   },
+   "workMap": {
+    "sessionId": "S-mutt2zge3ehtr",
+    "summary": "Thomas Brandt opens each incoming invoice and checks whether the pre-coded cost center matches the line category. He only changes the coding when it doesn't match. Equipment over €5,000 gross is recoded to CapEx cost center 0400, and he books it there only if it has an asset number. Every invoice from a group subsidiary, such as Keller CZ, goes to the controller (currently Dr. Fisher) for a second approval before posting, whatever the amount. In December he checks supplier history for double billing: an invoice with the same amount as an earlier one is a duplicate, so he puts it on hold and asks the supplier for a credit note.",
+    "steps": [
+     {
+      "id": "W-mutt683godd3z",
+      "index": 1,
+      "caseId": "ACC-PINV-2026-00004",
+      "title": "Posted invoice 4469",
+      "ts": 1791117463539,
+      "offsetMs": 16117,
+      "frameId": "F-mutt3bwyclcqz",
+      "eventIds": [
+       "E-mutt3d47h2cjz"
+      ],
+      "decision": "posted invoice 4469",
+      "reason": {
+       "text": "If the line category matches the pre-coded cost center, like freight on four eight zero zero, I leave it. I only touch the coding when it doesn't fit.",
+       "quote": "If the line category matches the pre-coded cost center, like freight on four eight zero zero, I leave it. I only touch the coding when it doesn't fit.",
+       "utteranceId": "U-mutt3e36cpw6v",
+       "questionId": "Q-mutt3e0nfw2p5",
+       "ts": 1791117466371
+      },
+      "guardrails": [],
+      "nodeId": "post_invoice"
+     },
+     {
+      "id": "W-mutt683gqgbnm",
+      "index": 2,
+      "caseId": "ACC-PINV-2026-00006",
+      "title": "Invoice 4471: cost center 4711 → 0400, asset AN-2025-0142",
+      "ts": 1791117476306,
+      "offsetMs": 28884,
+      "frameId": "F-mutt3lrkdrnd6",
+      "eventIds": [
+       "E-mutt3mufsk6ur"
+      ],
+      "decision": "invoice 4471: cost center 4711 → 0400, asset AN-2025-0142",
+      "reason": {
+       "text": "That's a spindle unit, so it's equipment. Anything over five thousand euros gross is CapEx, so it goes to zero four zero zero, not maintenance. And no asset number, no CapEx booking.",
+       "quote": "That's a spindle unit, so it's equipment. Anything over five thousand euros gross is CapEx, so it goes to zero four zero zero, not maintenance. And no asset number, no CapEx booking.",
+       "utteranceId": "U-mutt3nyycdfpv",
+       "questionId": "Q-mutt3nvxyak5c",
+       "ts": 1791117479156
+      },
+      "guardrails": [
+       {
+        "text": "Equipment over €5,000 gross must be posted to CapEx cost center 0400, not to maintenance.",
+        "quote": "Anything over five thousand euros gross is CapEx, so it goes to zero four zero zero, not maintenance.",
+        "utteranceId": "U-mutt3nyycdfpv"
+       },
+       {
+        "text": "Never post a CapEx booking without an asset number.",
+        "quote": "And no asset number, no CapEx booking.",
+        "utteranceId": "U-mutt53qdjk21k"
+       }
+      ],
+      "nodeId": "set_invoice_coding"
+     },
+     {
+      "id": "W-mutt683gbgkgp",
+      "index": 3,
+      "caseId": "ACC-PINV-2026-00006",
+      "title": "Posted invoice 4471",
+      "ts": 1791117484307,
+      "offsetMs": 36885,
+      "frameId": "F-mutt3rxzz1reg",
+      "eventIds": [
+       "E-mutt3tvndpu0k"
+      ],
+      "decision": "posted invoice 4471",
+      "guardrails": [
+       {
+        "text": "Equipment over €5,000 gross must be posted to CapEx cost center 0400, not to maintenance.",
+        "quote": "Anything over five thousand euros gross is CapEx, so it goes to zero four zero zero, not maintenance.",
+        "utteranceId": "U-mutt3nyycdfpv"
+       },
+       {
+        "text": "Never post a CapEx booking without an asset number.",
+        "quote": "And no asset number, no CapEx booking.",
+        "utteranceId": "U-mutt53qdjk21k"
+       }
+      ],
+      "nodeId": "post_invoice"
+     },
+     {
+      "id": "W-mutt683gpr73k",
+      "index": 4,
+      "caseId": "ACC-PINV-2026-00007",
+      "title": "Sent invoice 4472 to the controller for approval",
+      "ts": 1791117502390,
+      "offsetMs": 54968,
+      "frameId": "F-mutt45we6yobg",
+      "eventIds": [
+       "E-mutt477b9xciq"
+      ],
+      "decision": "sent invoice 4472 to the controller for approval",
+      "reason": {
+       "text": "Everything from Czech subsidiary goes to Dr. Fisher in controlling for a second approval, no matter the amount. I never post intercompany without the controller.",
+       "quote": "Everything from Czech subsidiary goes to Dr. Fisher in controlling for a second approval, no matter the amount. I never post intercompany without the controller.",
+       "utteranceId": "U-mutt49cu58ggw",
+       "questionId": "Q-mutt499ngpkwj",
+       "ts": 1791117506882
+      },
+      "guardrails": [
+       {
+        "text": "Never post an intercompany invoice without controller approval, whatever the amount (the usual €10,000 approval threshold does not apply).",
+        "quote": "I never post intercompany without the controller.",
+        "utteranceId": "U-mutt49cu58ggw"
+       }
+      ],
+      "nodeId": "request_approval"
+     },
+     {
+      "id": "W-mutt683gkt9wb",
+      "index": 5,
+      "caseId": "ACC-PINV-2026-00007",
+      "title": "Posted invoice 4472",
+      "ts": 1791117519020,
+      "offsetMs": 71598,
+      "frameId": "F-mutt4iq0pfnby",
+      "eventIds": [
+       "E-mutt4jsa0efgx"
+      ],
+      "decision": "posted invoice 4472",
+      "guardrails": [
+       {
+        "text": "Never post an intercompany invoice without controller approval, whatever the amount (the usual €10,000 approval threshold does not apply).",
+        "quote": "I never post intercompany without the controller.",
+        "utteranceId": "U-mutt49cu58ggw"
+       },
+       {
+        "text": "Everything from Czech subsidiary goes to Dr. Fisher in controlling for a second approval, no matter the amount. I never post intercompany without the controller.",
+        "quote": "Everything from Czech subsidiary goes to Dr. Fisher in controlling for a second approval, no matter the amount. I never post intercompany without the controller.",
+        "utteranceId": "U-mutt49cu58ggw"
+       }
+      ],
+      "nodeId": "post_invoice"
+     },
+     {
+      "id": "W-mutt683hh3g4w",
+      "index": 6,
+      "caseId": "ACC-PINV-2026-00008",
+      "title": "Checked invoice history of supplier Nordlicht Bürobedarf GmbH",
+      "ts": 1791117526035,
+      "offsetMs": 78613,
+      "frameId": "F-mutt4o508ttyn",
+      "eventIds": [
+       "E-mutt4p2paam0n"
+      ],
+      "decision": "checked invoice history of supplier Nordlicht Bürobedarf GmbH",
+      "reason": {
+       "text": "Nordlicht double bills every December. This one has exactly the same amount as four four six eight, so it's a duplicate. I put it on hold and ask them for a credit one.",
+       "quote": "Nordlicht double bills every December. This one has exactly the same amount as four four six eight, so it's a duplicate. I put it on hold and ask them for a credit one.",
+       "utteranceId": "U-mutt53zwhaze5",
+       "questionId": "Q-mutt4q35mfsay",
+       "ts": 1791117546604
+      },
+      "guardrails": [
+       {
+        "text": "Never post a December invoice whose amount exactly matches an earlier invoice from the same supplier. Hold it instead.",
+        "quote": "This one has exactly the same amount as four four six eight, so it's a duplicate. I put it on hold",
+        "utteranceId": "U-mutt4zdpe3qvw"
+       },
+       {
+        "text": "Check the supplier history before posting a December Nordlicht invoice.",
+        "quote": "Nordlicht double bills every December.",
+        "utteranceId": "U-mutt53zwhaze5"
+       },
+       {
+        "text": "Nordlicht double bills every December. This one has exactly the same amount as four four six eight, so it's a duplicate. I put it on hold and ask them for a credit one.",
+        "quote": "Nordlicht double bills every December. This one has exactly the same amount as four four six eight, so it's a duplicate. I put it on hold and ask them for a credit one.",
+        "utteranceId": "U-mutt4zdpe3qvw"
+       }
+      ]
+     },
+     {
+      "id": "W-mutt683hvcwn7",
+      "index": 7,
+      "caseId": "ACC-PINV-2026-00008",
+      "title": "Put invoice 4473 on hold",
+      "ts": 1791117537737,
+      "offsetMs": 90315,
+      "frameId": "F-mutt4x5vo4rhc",
+      "eventIds": [
+       "E-mutt4yfjirr2w"
+      ],
+      "decision": "put invoice 4473 on hold",
+      "reason": {
+       "text": "Nordlicht double bills every December. This one has exactly the same amount as four four six eight, so it's a duplicate. I put it on hold and ask them for a credit one.",
+       "quote": "Nordlicht double bills every December. This one has exactly the same amount as four four six eight, so it's a duplicate. I put it on hold and ask them for a credit one.",
+       "utteranceId": "U-mutt4zdpe3qvw",
+       "questionId": "Q-mutt4zbatv82o",
+       "ts": 1791117540622
+      },
+      "guardrails": [
+       {
+        "text": "Never post a December invoice whose amount exactly matches an earlier invoice from the same supplier. Hold it instead.",
+        "quote": "This one has exactly the same amount as four four six eight, so it's a duplicate. I put it on hold",
+        "utteranceId": "U-mutt4zdpe3qvw"
+       },
+       {
+        "text": "Check the supplier history before posting a December Nordlicht invoice.",
+        "quote": "Nordlicht double bills every December.",
+        "utteranceId": "U-mutt53zwhaze5"
+       },
+       {
+        "text": "Nordlicht double bills every December. This one has exactly the same amount as four four six eight, so it's a duplicate. I put it on hold and ask them for a credit one.",
+        "quote": "Nordlicht double bills every December. This one has exactly the same amount as four four six eight, so it's a duplicate. I put it on hold and ask them for a credit one.",
+        "utteranceId": "U-mutt53zwhaze5"
+       }
+      ]
+     }
+    ],
+    "generatedBy": "llm",
+    "generatedAt": 1791117598589
+   }
+  }
+ ],
+ "pages": [
+  {
+   "id": "P-mutt683hjs7io",
+   "slug": "precoded-cost-center-fits-leave-it",
+   "title": "If the pre-coded cost center fits the line category, leave the coding as is",
+   "situation": "An invoice arrives already pre-coded, and the cost center matches what the lines are (for example freight on 4800). The expert does not touch the coding and posts it. He only recodes when the category and cost center don't fit.",
+   "triggers": [
+    {
+     "field": "invoice.costCenter",
+     "op": "exists"
+    }
+   ],
+   "triggerText": "When an invoice's pre-coded cost center already matches its line category",
+   "recognize": [
+    {
+     "id": "I-mutt683hzlmqx",
+     "text": "Invoice already shows a cost center",
+     "provenance": [
+      {
+       "source": "confirmed",
+       "personId": "thomas",
+       "sessionId": "S-mutt2zge3ehtr"
+      }
+     ]
+    },
+    {
+     "id": "I-mutt683hg2lf5",
+     "text": "The line category matches that cost center (e.g. freight → 4800, material → maintenance 4711)",
+     "provenance": [
+      {
+       "source": "confirmed",
+       "personId": "thomas",
+       "sessionId": "S-mutt2zge3ehtr"
+      }
+     ]
+    }
+   ],
+   "steps": [
+    {
+     "id": "I-mutt683hu7nfx",
+     "text": "Open the invoice and compare the line category with the pre-coded cost center.",
+     "nodeId": "get_invoice",
+     "provenance": [
+      {
+       "source": "confirmed",
+       "personId": "thomas",
+       "sessionId": "S-mutt2zge3ehtr"
+      }
+     ]
+    },
+    {
+     "id": "I-mutt683humi11",
+     "text": "If they match, leave the coding unchanged. Only use set_invoice_coding when it doesn't fit.",
+     "nodeId": "set_invoice_coding",
+     "provenance": [
+      {
+       "source": "confirmed",
+       "personId": "thomas",
+       "sessionId": "S-mutt2zge3ehtr"
+      }
+     ]
+    },
+    {
+     "id": "I-mutt683hndj1f",
+     "text": "Post the invoice.",
+     "nodeId": "post_invoice",
+     "provenance": [
+      {
+       "source": "confirmed",
+       "personId": "thomas",
+       "sessionId": "S-mutt2zge3ehtr"
+      }
+     ]
+    }
+   ],
+   "why": [
+    {
+     "id": "I-mutt683he616y",
+     "text": "Recoding is only needed when the pre-coding is wrong. Touching correct coding is extra work with no benefit.",
+     "provenance": [
+      {
+       "source": "confirmed",
+       "personId": "thomas",
+       "sessionId": "S-mutt2zge3ehtr",
+       "ts": 1791117466371,
+       "utteranceId": "U-mutt3e36cpw6v",
+       "frameId": "F-mutt3bwyclcqz",
+       "eventId": "E-mutt3d47h2cjz",
+       "quote": "If the line category matches the pre-coded cost center, like freight on four eight zero zero, I leave it. I only touch the coding when it doesn't fit."
+      }
+     ]
+    }
+   ],
+   "guardrails": [],
+   "edgeCases": [
+    {
+     "id": "I-mutt683hml22c",
+     "text": "Example: Hydrotec hydraulic seal kits (material, €2,140) pre-coded to 4711 were posted without recoding.",
+     "provenance": [
+      {
+       "source": "confirmed",
+       "personId": "thomas",
+       "sessionId": "S-mutt2zge3ehtr"
+      }
+     ],
+     "learnedAt": 1791117598589
+    }
+   ],
+   "troubleshooting": [],
+   "mistakes": [],
+   "openQuestions": [
+    "Is there a full list of which line categories belong to which cost centers (4711, 4720, 4800, ...)?"
+   ],
+   "status": "confirmed",
+   "version": 1,
+   "history": [
+    {
+     "version": 1,
+     "at": 1791117598589,
+     "by": "Thomas Brandt",
+     "sessionId": "S-mutt2zge3ehtr",
+     "summary": "Created from session \"Month-end queue in ERPNext (Thomas)\""
+    }
+   ],
+   "experts": [
+    "thomas"
+   ],
+   "createdAt": 1791117598589,
+   "updatedAt": 1791117598589
+  },
+  {
+   "id": "P-mutt683iqni3t",
+   "slug": "intercompany-needs-controller-approval",
+   "title": "Group-company (intercompany) invoices need controller approval before posting, whatever the amount",
+   "situation": "An invoice comes from a group subsidiary (e.g. Keller CZ s.r.o., the Czech subsidiary). The normal approval threshold does not apply: every such invoice needs a second approval from controlling before posting.",
+   "triggers": [
+    {
+     "field": "supplier.isSubsidiary",
+     "op": "eq",
+     "value": true
+    }
+   ],
+   "triggerText": "When the supplier is a group company / subsidiary",
+   "recognize": [
+    {
+     "id": "I-mutt683im7x35",
+     "text": "Supplier is a group company (e.g. Keller CZ s.r.o., CZ)",
+     "provenance": [
+      {
+       "source": "confirmed",
+       "personId": "thomas",
+       "sessionId": "S-mutt2zge3ehtr"
+      }
+     ]
+    },
+    {
+     "id": "I-mutt683i5wxvo",
+     "text": "Line category is intercompany (e.g. 'Intercompany machining services')",
+     "provenance": [
+      {
+       "source": "confirmed",
+       "personId": "thomas",
+       "sessionId": "S-mutt2zge3ehtr"
+      }
+     ]
+    }
+   ],
+   "steps": [
+    {
+     "id": "I-mutt683igm80e",
+     "text": "Open the invoice and confirm the supplier is a group subsidiary.",
+     "nodeId": "get_invoice",
+     "provenance": [
+      {
+       "source": "confirmed",
+       "personId": "thomas",
+       "sessionId": "S-mutt2zge3ehtr"
+      }
+     ]
+    },
+    {
+     "id": "I-mutt683iezfcj",
+     "text": "Request a second approval from the controller. Currently this is Dr. Fisher in controlling, according to Thomas Brandt.",
+     "nodeId": "request_approval",
+     "provenance": [
+      {
+       "source": "confirmed",
+       "personId": "thomas",
+       "sessionId": "S-mutt2zge3ehtr"
+      }
+     ]
+    },
+    {
+     "id": "I-mutt683i1d9e8",
+     "text": "Post only after the controller has approved.",
+     "nodeId": "post_invoice",
+     "provenance": [
+      {
+       "source": "confirmed",
+       "personId": "thomas",
+       "sessionId": "S-mutt2zge3ehtr"
+      }
+     ]
+    }
+   ],
+   "why": [
+    {
+     "id": "I-mutt683izk0b4",
+     "text": "Intercompany invoices always get a second approval from controlling, regardless of the amount.",
+     "provenance": [
+      {
+       "source": "confirmed",
+       "personId": "thomas",
+       "sessionId": "S-mutt2zge3ehtr",
+       "ts": 1791117506882,
+       "utteranceId": "U-mutt49cu58ggw",
+       "frameId": "F-mutt45we6yobg",
+       "eventId": "E-mutt477b9xciq",
+       "quote": "Everything from Czech subsidiary goes to Dr. Fisher in controlling for a second approval, no matter the amount. I never post intercompany without the controller."
+      }
+     ]
+    }
+   ],
+   "guardrails": [
+    {
+     "id": "G-mutt683iu68ew",
+     "kind": "never",
+     "text": "Never post an intercompany invoice without controller approval, whatever the amount (the usual €10,000 approval threshold does not apply).",
+     "rule": {
+      "onTool": "post_invoice",
+      "when": [
+       {
+        "field": "supplier.isSubsidiary",
+        "op": "eq",
+        "value": true
+       }
+      ],
+      "requirePriorTool": "request_approval",
+      "require": [
+       {
+        "field": "invoice.approvedRoles",
+        "op": "contains",
+        "value": "controller"
+       }
+      ]
+     },
+     "provenance": [
+      {
+       "source": "confirmed",
+       "personId": "thomas",
+       "sessionId": "S-mutt2zge3ehtr",
+       "ts": 1791117506882,
+       "utteranceId": "U-mutt49cu58ggw",
+       "frameId": "F-mutt45we6yobg",
+       "eventId": "E-mutt477b9xciq",
+       "quote": "I never post intercompany without the controller."
+      }
+     ]
+    }
+   ],
+   "edgeCases": [
+    {
+     "id": "I-mutt683i4ydtr",
+     "text": "Applies even to small amounts: €3,200.40 from Keller CZ, far below €10,000, still went to the controller.",
+     "provenance": [
+      {
+       "source": "confirmed",
+       "personId": "thomas",
+       "sessionId": "S-mutt2zge3ehtr",
+       "ts": 1791117506882,
+       "utteranceId": "U-mutt49cu58ggw",
+       "frameId": "F-mutt45we6yobg",
+       "eventId": "E-mutt477b9xciq",
+       "quote": "no matter the amount"
+      }
+     ],
+     "learnedAt": 1791117598589
+    }
+   ],
+   "troubleshooting": [],
+   "mistakes": [],
+   "openQuestions": [
+    "Who can approve if Dr. Fisher is away and the due date is close? The expert didn't name a deputy.",
+    "Does this apply to all group subsidiaries or only the Czech one?",
+    "Should the cost coding of intercompany invoices be checked or changed before approval?"
+   ],
+   "status": "confirmed",
+   "version": 1,
+   "history": [
+    {
+     "version": 1,
+     "at": 1791117598589,
+     "by": "Thomas Brandt",
+     "sessionId": "S-mutt2zge3ehtr",
+     "summary": "Created from session \"Month-end queue in ERPNext (Thomas)\""
+    }
+   ],
+   "experts": [
+    "thomas"
+   ],
+   "createdAt": 1791117598589,
+   "updatedAt": 1791117598589
+  }
+ ],
+ "lessons": [
+  {
+   "id": "LES-drill-precoded-cost-center-fits-leave-it",
+   "title": "If the pre-coded cost center fits the line category, leave the coding as is",
+   "kind": "drill",
+   "pageIds": [
+    "P-mutt683hjs7io"
+   ],
+   "items": [
+    {
+     "id": "L-mutt683kjtqo9",
+     "kind": "predict",
+     "pageId": "P-mutt683hjs7io",
+     "prompt": "When an invoice's pre-coded cost center already matches its line category. What would Thomas do?",
+     "options": [
+      "Find the asset number (e.g. AN-2025-0142).",
+      "Open the invoice and confirm the item is equipment and the gross amount is over €5,000.",
+      "Open the invoice and compare the line category with the pre-coded cost center."
+     ],
+     "answer": "Open the invoice and compare the line category with the pre-coded cost center.",
+     "explanation": "Recoding is only needed when the pre-coding is wrong. Touching correct coding is extra work with no benefit.",
+     "quote": "If the line category matches the pre-coded cost center, like freight on four eight zero zero, I leave it. I only touch the coding when it doesn't fit.",
+     "frameId": "F-mutt3bwyclcqz"
+    }
+   ],
+   "basedOn": [
+    {
+     "pageId": "P-mutt683hjs7io",
+     "version": 1
+    }
+   ],
+   "createdAt": 1791117598592
+  },
+  {
+   "id": "LES-drill-intercompany-needs-controller-approval",
+   "title": "Group-company (intercompany) invoices need controller approval before posting, whatever the amount",
+   "kind": "drill",
+   "pageIds": [
+    "P-mutt683iqni3t"
+   ],
+   "items": [
+    {
+     "id": "L-mutt683k6wetf",
+     "kind": "predict",
+     "pageId": "P-mutt683iqni3t",
+     "prompt": "When the supplier is a group company / subsidiary. What would Thomas do?",
+     "options": [
+      "Open the invoice and confirm the supplier is a group subsidiary.",
+      "If they match, leave the coding unchanged. Only use set_invoice_coding when it doesn't fit.",
+      "Open the invoice and compare the line category with the pre-coded cost center."
+     ],
+     "answer": "Open the invoice and confirm the supplier is a group subsidiary.",
+     "explanation": "Intercompany invoices always get a second approval from controlling, regardless of the amount.",
+     "quote": "Everything from Czech subsidiary goes to Dr. Fisher in controlling for a second approval, no matter the amount. I never post intercompany without the controller.",
+     "frameId": "F-mutt45we6yobg"
+    },
+    {
+     "id": "L-mutt683kslvl3",
+     "kind": "quiz",
+     "pageId": "P-mutt683iqni3t",
+     "prompt": "True or false: Never post an intercompany invoice without controller approval, whatever the amount (the usual €10,000 approval threshold does not apply).",
+     "options": [
+      "True",
+      "False"
+     ],
+     "answer": "True",
+     "explanation": "I never post intercompany without the controller.",
+     "quote": "I never post intercompany without the controller.",
+     "frameId": "F-mutt45we6yobg"
+    }
+   ],
+   "basedOn": [
+    {
+     "pageId": "P-mutt683iqni3t",
+     "version": 1
+    }
+   ],
+   "createdAt": 1791117598592
+  }
+ ]
+}

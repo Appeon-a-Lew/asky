@@ -3,7 +3,8 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { seedDB } from "./seed";
-import { createWorkspaceDB, DATA_ROOT, db, dropFromCache, mutate } from "./store";
+import seedKnowledge from "./seed-knowledge.json";
+import { createWorkspaceDB, DATA_ROOT, db, dropFromCache, framesDir, mutate } from "./store";
 import type { DB } from "./types";
 import { isVisitor, MAIN, runInWorkspace } from "./workspace";
 
@@ -11,6 +12,18 @@ import { isVisitor, MAIN, runInWorkspace } from "./workspace";
 // clean template (demo company, Ledgerline queue, the generated tool catalogs —
 // none of the presenter's sessions or pages), deleted after a few hours, with
 // a budget so a public link cannot run up the API bill.
+//
+// So the hub is not empty on arrival, the template also holds a colleague's
+// earlier work: Thomas's recorded ERPNext session, with its screen frames
+// (public/seed-knowledge) and the two pages and drills it produced that the
+// visitor's own tasks don't cover (intercompany approval, leave correct coding
+// alone). The capex and duplicate pages stay for the visitor to teach.
+
+const SEED = seedKnowledge as unknown as Pick<DB, "sessions" | "pages" | "lessons">;
+const SEED_FRAMES = path.join(process.cwd(), "public", "seed-knowledge");
+const SEED_IDS = new Set([...SEED.sessions, ...SEED.pages].map((x) => x.id));
+/** Part of the starting knowledge, not something this visitor did. */
+export const isSeeded = (id: string) => SEED_IDS.has(id);
 
 const num = (v: string | undefined, d: number) => (v && Number.isFinite(Number(v)) ? Number(v) : d);
 export const TTL_MS = num(process.env.ASKY_WORKSPACE_TTL_HOURS, 6) * 3600_000;
@@ -22,7 +35,8 @@ const root = () => path.join(DATA_ROOT, "workspaces");
 /** The starting point of every visitor: what a fresh demo looks like. */
 export function template(now = Date.now()): DB {
   const main = runInWorkspace(MAIN, () => db());
-  return { ...seedDB(), tools: main.tools, catalogs: main.catalogs, blacklist: [], workspace: { visitor: true, createdAt: now, expiresAt: now + TTL_MS }, usage: { llm: 0, ttsChars: 0 } };
+  const k = structuredClone(SEED);
+  return { ...seedDB(), sessions: k.sessions, pages: k.pages, lessons: k.lessons, tools: main.tools, catalogs: main.catalogs, blacklist: [], workspace: { visitor: true, createdAt: now, expiresAt: now + TTL_MS }, usage: { llm: 0, ttsChars: 0 } };
 }
 
 /** Delete expired workspaces; return how many are still alive. */
@@ -50,6 +64,7 @@ export function createVisitorWorkspace(): { id: string; expiresAt: number } {
   const id = `v-${Array.from(crypto.randomBytes(16), (b) => "abcdefghijklmnopqrstuvwxyz0123456789"[b % 36]).join("")}`;
   const first = template();
   createWorkspaceDB(id, first);
+  if (fs.existsSync(SEED_FRAMES)) fs.cpSync(SEED_FRAMES, framesDir(id), { recursive: true });
   return { id, expiresAt: first.workspace!.expiresAt };
 }
 
