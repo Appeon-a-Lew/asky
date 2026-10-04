@@ -110,9 +110,9 @@ const SLIDES: Slide[] = [
   },
   {
     id: "demo",
-    secs: 60,
+    secs: 51,
     dark: true,
-    notes: "[Play — the video is narrated, 60 s.] Thomas recodes an invoice → asky asks why at the pause → teach-back → new hire Lena tries the wrong post → “Stop — don't click Yes.” Real ERPNext, from the shared screen only.",
+    notes: "[Play — the video is narrated, 51 s.] Thomas recodes an invoice → asky asks why at the pause → teach-back → new hire Lena tries the wrong post → “Stop — don't click Yes.” Real ERPNext, from the shared screen only.",
     body: () => <Video src="/pitch-media/demo.mp4" poster="/pitch-media/demo-poster.jpg" />,
   },
   {
