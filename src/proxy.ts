@@ -3,11 +3,11 @@ import { verifyWorkspace, WS_COOKIE } from "@/lib/wscookie";
 
 // Every request: verify the signed workspace cookie and pass the workspace on
 // as a header the app trusts (any copy sent by a client is dropped). Without a
-// workspace only the landing page, the presenter login and the entry endpoint
+// workspace only the landing page, the pitch deck, the presenter login and the entry endpoint
 // are reachable. Without ASKY_SECRET (local development) nothing is gated.
 
 const WS_HEADER = "x-asky-ws";
-const PUBLIC = [/^\/$/, /^\/presenter$/, /^\/api\/workspace$/];
+const PUBLIC = [/^\/$/, /^\/pitch$/, /^\/presenter$/, /^\/api\/workspace$/];
 
 export async function proxy(req: NextRequest) {
   const headers = new Headers(req.headers);
@@ -27,7 +27,7 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  // public: Next's static files and the landing page's assets. Everything else — API routes
+  // public: Next's static files and the landing page's and pitch deck's assets. Everything else — API routes
   // included, even when they end in .jpg (screen moments) — goes through the workspace check.
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|landing/|demo/).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|landing/|pitch-media/|demo/).*)"],
 };
