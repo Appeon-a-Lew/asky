@@ -2,15 +2,18 @@ import Link from "next/link";
 import { Icon, type IconName } from "@/components/icons";
 import Shell from "@/components/Shell";
 import { freshDB } from "@/lib/fresh";
+import { isSeeded } from "@/lib/visitors";
 
 // The audience's guide: four steps, each checked off from what this workspace already holds.
 export default async function Start() {
   const d = await freshDB();
+  // the starting knowledge (Thomas's session and pages) doesn't count as the visitor's progress
+  const sessions = d.sessions.filter((s) => !isSeeded(s.id));
   const done = {
-    interview: d.sessions.some((s) => s.recording && s.phase === "done"),
-    capture: d.sessions.some((s) => s.mode === "capture" && s.phase === "done" && !s.endedEarly),
-    pages: d.pages.length > 0,
-    teach: d.sessions.some((s) => s.mode === "teach" && (s.teachResult?.caught.length ?? 0) > 0),
+    interview: sessions.some((s) => s.recording && s.phase === "done"),
+    capture: sessions.some((s) => s.mode === "capture" && s.phase === "done" && !s.endedEarly),
+    pages: d.pages.some((p) => !isSeeded(p.id)),
+    teach: sessions.some((s) => s.mode === "teach" && (s.teachResult?.caught.length ?? 0) > 0),
   };
   const steps: { key: keyof typeof done; href: string; icon: IconName; title: string; how: React.ReactNode }[] = [
     { key: "interview", href: "/interview", icon: "mic", title: "Interview — let the expert talk", how: <>Open <b>Recorded interview</b> and click <b>Import sample</b>: Sabine explains her month-end in German. asky transcribes it and writes English pages with her original quotes. Takes about a minute.</> },
