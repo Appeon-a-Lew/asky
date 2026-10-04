@@ -114,7 +114,7 @@ pnpm e2e:erpnext                  # Playwright plays Sabine and Lena in ERPNext;
 
 asky and ERPNext run on one VPS behind Caddy (HTTPS is required for screen sharing and the microphone):
 
-- `https://asky.2-31-1-203.sslip.io` — asky (basic auth), image `ghcr.io/appeon-a-lew/asky`
+- `https://asky.2-31-1-203.sslip.io` — asky (public; "Try it yourself" needs no code), image `ghcr.io/appeon-a-lew/asky`
 - `https://erp.2-31-1-203.sslip.io` — ERPNext (its own login)
 
 | file | on the server |
@@ -131,7 +131,7 @@ Every push to `main` (or a manual run of **Build and deploy**) builds the image,
 
 With `ASKY_SECRET` set, the app is gated (`src/proxy.ts`): a signed `asky_ws` cookie decides the workspace, and every route handler runs inside it (`withWorkspace`, `src/lib/workspace.ts`).
 
-- **Audience** — the event code (`ASKY_EVENT_CODE`) creates a private workspace (`data/workspaces/v-…`) from a clean template: Ledgerline only, guided at `/start`, deleted after `ASKY_WORKSPACE_TTL_HOURS`. Budgets per workspace (AI calls, TTS characters; over them asky falls back to heuristics and the browser voice), a few shared live-voice seats, a global cap. No screen frames, audio uploads, ERPNext or harness writes.
+- **Audience** — "Try it yourself" (open while `ASKY_EVENT_CODE` is set; nobody types it) creates a private workspace (`data/workspaces/v-…`) from a clean template: Ledgerline only, guided at `/start`, deleted after `ASKY_WORKSPACE_TTL_HOURS`. Budgets per workspace (AI calls, TTS characters; over them asky falls back to heuristics and the browser voice), a few shared live-voice seats, a global cap. No screen frames, audio uploads, ERPNext or harness writes.
 - **Presenter** — `/presenter` with `ASKY_PRESENTER_PASSWORD` → the main workspace (ERPNext, the curated knowledge).
 - Fail-closed: inside the gated server a request without a workspace never reaches the main data. Without `ASKY_SECRET` (local development, scripts) everything is the main workspace, as before.
 - `ASKY_URL=… ASKY_EVENT_CODE=… pnpm e2e` runs the full UI test as an audience member.

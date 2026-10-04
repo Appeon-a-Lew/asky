@@ -32,9 +32,9 @@ async function waitForQuestion(page: Page, timeout = 15000) {
 
 async function main() {
   const browser = await chromium.launch();
-  // gated server (ASKY_SECRET set): enter like the audience does, with the event code → a private workspace
+  // gated server (ASKY_SECRET set): enter like the audience does → a private workspace
   const code = process.env.ASKY_EVENT_CODE;
-  const cookie = code ? (await fetch(`${BASE}/api/workspace`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ code }) })).headers.getSetCookie().map((c) => c.split(";")[0]).find((c) => c.startsWith("asky_ws=")) : undefined;
+  const cookie = code ? (await fetch(`${BASE}/api/workspace`, { method: "POST", headers: { "content-type": "application/json" }, body: "{}" })).headers.getSetCookie().map((c) => c.split(";")[0]).find((c) => c.startsWith("asky_ws=")) : undefined;
   if (code && !cookie) throw new Error("could not enter with ASKY_EVENT_CODE");
   const ctx = await browser.newContext({ viewport: { width: 1600, height: 1000 } });
   if (cookie) await ctx.addCookies([{ name: "asky_ws", value: cookie.slice("asky_ws=".length), url: BASE }]);
