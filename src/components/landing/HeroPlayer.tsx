@@ -31,8 +31,8 @@ export default function HeroPlayer({ frames }: { frames: Frame[] }) {
     <div className="relative overflow-hidden rounded-2xl bg-stone-900 shadow-2xl shadow-black/40 ring-1 ring-white/10">
       <div className="flex items-center gap-1.5 border-b border-white/5 bg-stone-900 px-3 py-2">
         <span className="h-2.5 w-2.5 rounded-full bg-rose-400/70" /><span className="h-2.5 w-2.5 rounded-full bg-amber-300/70" /><span className="h-2.5 w-2.5 rounded-full bg-emerald-400/70" />
-        <span className="ml-3 truncate font-mono text-[11px] text-stone-500">erp.…/app/purchase-invoice · shared screen</span>
-        <span className="ml-auto flex items-center gap-1.5 text-[11px] text-rose-300"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-rose-400" />asky watching</span>
+        <span className="ml-3 hidden truncate font-mono text-[11px] text-stone-500 sm:inline">erp.…/app/purchase-invoice · shared screen</span>
+        <span className="ml-auto flex shrink-0 items-center gap-1.5 whitespace-nowrap text-[11px] text-rose-300"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-rose-400" />asky watching</span>
       </div>
       <div className="relative aspect-[16/10] bg-stone-950">
         {STORY.map((s, i) => (

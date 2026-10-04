@@ -19,12 +19,12 @@ export const metadata = {
 };
 
 const FEATURES = [
-  { id: "moment", n: "01", kicker: "Capture", title: "Asks at the right moment", text: "asky never interrupts someone mid-thought. It waits for a real pause, then a fast decision model chooses: ask now, ask before the irreversible step, save it for the debrief — or stay quiet because a page already explains it." },
-  { id: "stop", n: "02", kicker: "Teach", title: "Stops the irreversible click", text: "Real apps don't ask permission before saving. asky watches for the last moment that still counts — the confirm dialog — and steps in there, in the expert's own words." },
-  { id: "vision", n: "03", kicker: "Real apps", title: "Learns a real app from the screen alone", text: "On ERPNext, asky has no plugin and no instrumentation — only the shared screen. Vision reads each frame into a structured state, and the app's API confirms what was really saved." },
-  { id: "harness", n: "04", kicker: "Harness", title: "Generates the app's MCP — automatically", text: "Point the harness at an app and it discovers what can be done there: every action as a tool, classified read, write or irreversible. Those tools become asky's vocabulary — and an MCP server for other agents." },
-  { id: "pages", n: "05", kicker: "Map", title: "Pages: git blame for knowledge", text: "Knowledge lands on pages — one per judgment call — where every sentence remembers who said it, when, and what was on the screen." },
-  { id: "schmidt", n: "06", kicker: "Living knowledge", title: "Knowledge that changes", text: "Experts contradict each other, and facts expire. asky notices, keeps the history, switches off outdated rules — and lets a person decide." },
+  { id: "moment", n: "01", kicker: "Capture", title: "Asks at the right moment", problem: "An assistant that interrupts gets switched off. One that never asks learns nothing.", text: "asky waits for a real pause, then a fast decision model chooses: ask now, ask before the irreversible step, save it for the debrief — or stay quiet because it already knows the answer." },
+  { id: "stop", n: "02", kicker: "Teach", title: "Stops the mistake before it's saved", problem: "New hires learn the guardrails by breaking them — on real invoices.", text: "asky watches for the last moment that still counts — the confirm dialog — and steps in there, in the expert's own words." },
+  { id: "vision", n: "03", kicker: "Real apps", title: "Works on the real app — from the screen alone", problem: "Companies can't instrument or integrate every tool their experts use.", text: "On ERPNext asky has no plugin and no integration — only the shared screen. Vision reads each frame, and the app's API confirms what was really saved." },
+  { id: "harness", n: "04", kicker: "Harness", title: "Learns what each click means — automatically", problem: "A click is just a click until you know which ones change data and which ones can't be undone.", text: "The harness discovers every action an app offers, marks it read, write or irreversible, and turns it into tools — asky's vocabulary, and an MCP server for other agents." },
+  { id: "pages", n: "05", kicker: "Map", title: "Every rule traceable to the expert's words", problem: "Process documents are vague, outdated, and nobody knows who wrote them.", text: "Knowledge lands on pages — one per judgment call — where every sentence remembers who said it, when, and what was on the screen." },
+  { id: "schmidt", n: "06", kicker: "Living knowledge", title: "Knowledge that stays current", problem: "Facts expire and experts disagree — a wiki that only grows ends up contradicting itself.", text: "asky notices when new knowledge contradicts old, keeps the history, switches off outdated rules — and lets a person decide." },
 ] as const;
 
 const MORE = [
@@ -41,7 +41,6 @@ export default async function Landing({ searchParams }: { searchParams: Promise<
   const d = data;
   const capexGuard = d.page?.guardrails[0]?.text ?? "";
   const capexQuote = d.page?.why[0]?.quote ?? undefined;
-  const aligned = d.harness ? `${d.harness.alignment.filter((a) => a.tools.length).length}/${d.harness.alignment.length}` : "";
   const read = d.frames.filter((f) => f.screen).length;
 
   return (
@@ -55,24 +54,25 @@ export default async function Landing({ searchParams }: { searchParams: Promise<
             <span className="text-[15px] font-semibold tracking-tight text-white">asky</span>
           </span>
           <div className="flex items-center gap-5 text-sm">
-            <a href="#features" className="hidden text-stone-400 hover:text-white sm:inline">How it works</a>
+            <a href="#problem" className="hidden text-stone-400 hover:text-white sm:inline">The problem</a>
+            <a href="#solution" className="hidden text-stone-400 hover:text-white sm:inline">How it works</a>
             <a href="#try" className="rounded-lg bg-white/10 px-3 py-1.5 text-white ring-1 ring-white/15 hover:bg-white/15">Try it</a>
           </div>
         </nav>
         <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 pb-16 pt-6 sm:px-6 lg:grid-cols-2 lg:pb-24 lg:pt-10">
           <div>
             <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1 text-[12px] text-stone-400 ring-1 ring-white/10">Hack-Nation × ElevenLabs · The AI Apprentice</div>
-            <h1 className="text-[40px] font-semibold leading-[1.05] tracking-tight text-white sm:text-[52px]">The apprentice that learns your experts&apos; judgment.</h1>
-            <p className="mt-5 max-w-xl text-lg leading-relaxed text-stone-400">asky watches an expert work in a real ERP, asks the right question at the right moment, and turns the answers into living knowledge a new hire — or an AI agent — can use.</p>
+            <h1 className="text-[38px] font-semibold leading-[1.05] tracking-tight text-white sm:text-[50px]">When Sabine retires, 24 years of judgment leave with her.</h1>
+            <p className="mt-5 max-w-xl text-lg leading-relaxed text-stone-400"><b className="font-semibold text-white">asky is an AI apprentice.</b> It watches experts do their real work, asks <i>why</i> at the right moment, and teaches the next person what they know — before it walks out of the door.</p>
             <div className="mt-7 flex flex-wrap gap-3">
               <a href="#try" className="rounded-xl bg-amber-400 px-5 py-3 font-medium text-stone-950 transition hover:bg-amber-300">Try it yourself</a>
-              <a href="#features" className="rounded-xl px-5 py-3 font-medium text-white ring-1 ring-white/20 transition hover:bg-white/5">See how it works</a>
+              <a href="#problem" className="rounded-xl px-5 py-3 font-medium text-white ring-1 ring-white/20 transition hover:bg-white/5">What problem it solves</a>
             </div>
             <dl className="mt-10 grid grid-cols-3 gap-4 border-t border-white/10 pt-6">
               {[
+                ["30%", "of Germany's workforce retires by 2036"],
                 [`${d.decisions.medianMs} ms`, "to decide whether to interrupt"],
-                [`${read}/${d.frames.length}`, "ERPNext screens read correctly"],
-                [aligned, "steps found in the generated MCP"],
+                [`${read}/${d.frames.length}`, "real ERP screens read correctly"],
               ].map(([n, l]) => (
                 <div key={l}>
                   <dt className="text-2xl font-semibold tracking-tight text-white">{n}</dt>
@@ -85,12 +85,69 @@ export default async function Landing({ searchParams }: { searchParams: Promise<
         </div>
       </header>
 
+      {/* ── the problem ── */}
+      <section id="problem" className="scroll-mt-4 border-b border-stone-200 bg-white">
+        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+          <div className="grid gap-10 lg:grid-cols-2">
+            <div>
+              <div className="mb-2 text-[12px] font-semibold uppercase tracking-wider text-amber-700">The problem</div>
+              <h2 className="text-[30px] font-semibold leading-tight tracking-tight text-stone-900 sm:text-[36px]">The most experienced generation is retiring — and what they know was never written down.</h2>
+              <p className="mt-4 text-lg leading-relaxed text-stone-600">In Germany alone, <b className="text-stone-900">12.9 million workers — almost 30% of the labor force — pass retirement age by 2036.</b> They take decades of judgment about how the daily work really runs.</p>
+            </div>
+            <figure className="rounded-2xl bg-stone-50 p-6 ring-1 ring-stone-200">
+              <p className="text-[15px] leading-relaxed text-stone-700">Thursday, 4:10 pm, two days before month-end close. <b>Sabine</b>, 57, has run accounts payable for 24 years. <b>Lena</b>, 26, started on Monday and watches her screen.</p>
+              <ul className="mt-3 space-y-1.5 text-[15px] text-stone-700">
+                <li>→ Sabine moves an invoice to another cost center — without a word.</li>
+                <li>→ She holds a second one: that supplier double-bills every December.</li>
+                <li>→ She sends a third for extra approval: it comes from the Czech subsidiary.</li>
+              </ul>
+              <p className="mt-3 text-[15px] leading-relaxed text-stone-700">Lena catches half of it. The 2019 process document covers even less. <b>Sabine retires in 18 months.</b></p>
+            </figure>
+          </div>
+          <div className="mt-10 grid gap-3 md:grid-cols-3">
+            {[
+              ["Knowledge lives in heads", "What makes experienced people good was never written down. New hires learn it slowly, over a shoulder."],
+              ["Recordings show what, not why", "Screen recordings and process mining capture clicks. They can't tell a deliberate judgment call from a habit or a mistake."],
+              ["Guardrails are invisible", "Limits, exceptions and the moment to stop and ask are rarely written down. New hires learn them by breaking them."],
+            ].map(([t, x]) => (
+              <div key={t} className="rounded-2xl p-5 ring-1 ring-stone-200">
+                <div className="font-semibold text-stone-900">{t}</div>
+                <p className="mt-1.5 text-sm text-stone-600">{x}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── the solution ── */}
+      <section id="solution" className="scroll-mt-4 border-b border-stone-200">
+        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+          <div className="mb-2 text-[12px] font-semibold uppercase tracking-wider text-amber-700">How asky solves it</div>
+          <h2 className="max-w-3xl text-[30px] font-semibold leading-tight tracking-tight text-stone-900 sm:text-[36px]">An apprentice, not a recorder: it asks <i>why</i> until it could do the job itself.</h2>
+          <ol className="mt-8 grid gap-4 md:grid-cols-3">
+            {[
+              { n: "1", t: "Capture", what: "Sabine works her real queue and shares her screen. asky stays quiet while she types or talks — and at a natural pause asks the one question that matters.", ex: "“Why did you move 4471 from maintenance to capex?” — “Anything above €5,000 needs to be in capex.”" },
+              { n: "2", t: "Map", what: "After the task, a short debrief closes the gaps. asky explains the whole process back until Sabine says “yes, that’s how it works” — then it becomes knowledge.", ex: "A page: “Invoices over €5,000 are capex” — her reason in her words, the rule as code, the screen moment." },
+              { n: "3", t: "Teach", what: "Lena works new invoices on her own screen. The tutor asks what Sabine would do — and steps in before a wrong decision is saved.", ex: "Lena tries to post a €6,400 tool set on maintenance. “Stop — don’t click Yes.” In Sabine’s words." },
+            ].map((x) => (
+              <li key={x.n} className="flex flex-col rounded-2xl bg-white p-5 ring-1 ring-stone-200">
+                <div className="flex items-center gap-2.5"><span className="grid h-7 w-7 place-items-center rounded-full bg-stone-900 text-sm font-semibold text-white">{x.n}</span><span className="text-lg font-semibold text-stone-900">{x.t}</span></div>
+                <p className="mt-2 text-sm leading-relaxed text-stone-600">{x.what}</p>
+                <p className="mt-3 rounded-xl bg-amber-50 p-3 text-[13px] leading-snug text-amber-950 ring-1 ring-amber-200">{x.ex}</p>
+              </li>
+            ))}
+          </ol>
+          <p className="mt-6 text-stone-600">The same knowledge can be exported for AI agents — so they follow the same steps and stop where Sabine would.</p>
+        </div>
+      </section>
+
       {/* ── try it ── */}
       <section id="try" className="border-b border-stone-200 bg-white">
         <div className="mx-auto grid max-w-6xl gap-8 px-4 py-14 sm:px-6 lg:grid-cols-2">
           <div>
-            <h2 className="text-[28px] font-semibold tracking-tight text-stone-900">Try it yourself — in your own private workspace</h2>
-            <p className="mt-3 text-stone-600">You get a fresh copy of asky with <b>Ledgerline</b>, a small accounts-payable app built into it. Be the expert, teach asky, then become the new hire and see if it stops you.</p>
+            <div className="mb-2 text-[12px] font-semibold uppercase tracking-wider text-amber-700">Try it</div>
+            <h2 className="text-[28px] font-semibold tracking-tight text-stone-900">Be Sabine for fifteen minutes. Then be Lena.</h2>
+            <p className="mt-3 text-stone-600">You get your own private copy of asky with <b>Ledgerline</b>, a small invoice app built into it. Teach asky how you handle three invoices — then switch roles and see if it stops you from making a mistake.</p>
             <div className="mt-6"><TryForm expired={sp.expired === "1"} /></div>
             <p className="mt-3 text-[13px] text-stone-500">Only you see your workspace. It&apos;s deleted after a few hours. No screen recording — Ledgerline reports its own clicks. The microphone is optional; you can type.</p>
           </div>
@@ -113,11 +170,17 @@ export default async function Landing({ searchParams }: { searchParams: Promise<
 
       {/* ── the six ── */}
       <main id="features" className="mx-auto max-w-6xl space-y-24 px-4 py-20 sm:px-6">
+        <div className="max-w-3xl">
+          <div className="mb-2 text-[12px] font-semibold uppercase tracking-wider text-amber-700">Under the hood</div>
+          <h2 className="text-[30px] font-semibold leading-tight tracking-tight text-stone-900 sm:text-[36px]">Six things that make it work — shown on real runs.</h2>
+          <p className="mt-3 text-lg text-stone-600">Everything below is recorded from asky working in ERPNext, a real open-source ERP: the screens, what asky read off them, the decisions it logged, and what Sabine and Thomas said.</p>
+        </div>
         {FEATURES.map((f) => (
           <section key={f.id} id={f.id} className="scroll-mt-8">
             <div className="mb-8 max-w-3xl">
               <div className="mb-2 flex items-center gap-3 text-[12px] font-semibold uppercase tracking-wider text-amber-700"><span className="font-mono text-stone-400">{f.n}</span>{f.kicker}</div>
-              <h2 className="text-[30px] font-semibold leading-tight tracking-tight text-stone-900 sm:text-[36px]">{f.title}</h2>
+              <h3 className="text-[26px] font-semibold leading-tight tracking-tight text-stone-900 sm:text-[32px]">{f.title}</h3>
+              <p className="mt-3 border-l-2 border-rose-300 pl-3 text-[15px] text-stone-700"><span className="font-semibold text-rose-700">The problem: </span>{f.problem}</p>
               <p className="mt-3 text-lg leading-relaxed text-stone-600">{f.text}</p>
             </div>
             {f.id === "moment" && d.decisions.capex && <JevDemo d={d.decisions.capex} fallback={d.decisions.fallback} medianMs={d.decisions.medianMs} count={d.decisions.jevCount} />}
