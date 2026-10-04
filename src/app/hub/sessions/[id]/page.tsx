@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Card } from "@/components/hub";
+import { caseLabel } from "@/lib/engine/context";
 import { freshDB, personName } from "@/lib/fresh";
 import type { Session } from "@/lib/types";
 import WorkMapView from "./WorkMapView";
@@ -23,7 +24,7 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
     <div className="space-y-4">
       <div>
         <div className="text-xs text-stone-500"><Link href="/hub/sessions" className="hover:underline">Sessions</Link> / {s.mode.replace("_", " ")}</div>
-        <h1 className="text-2xl font-semibold tracking-tight">{s.workMap ? "Work Map — " : ""}{s.title}</h1>
+        <h1 className="text-[26px] font-semibold leading-tight tracking-tight text-stone-900">{s.workMap ? "Work Map — " : ""}{s.title}</h1>
         <p className="text-sm text-stone-500">{personName(d, s.personId)} · {new Date(s.startedAt).toLocaleString()} · {s.events.filter((e) => e.kind === "tool").length} steps · {live.length} live questions · {debrief.length} debrief answers{s.offRecord.length ? ` · ${s.offRecord.length}× off the record` : ""}</p>
       </div>
 
@@ -31,7 +32,7 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
 
       {s.workMap ? (
         <WorkMapView
-          steps={s.workMap.steps.map((st) => ({ ...st, when: mmss(st.offsetMs), reasonWhen: st.reason?.ts ? mmss(st.reason.ts - s.startedAt) : undefined, frame: st.frameId ? frames[st.frameId] : undefined }))}
+          steps={s.workMap.steps.map((st) => ({ ...st, caseId: st.caseId && caseLabel(d, st.caseId), when: mmss(st.offsetMs), reasonWhen: st.reason?.ts ? mmss(st.reason.ts - s.startedAt) : undefined, frame: st.frameId ? frames[st.frameId] : undefined }))}
           expert={personName(d, s.personId).split(" ")[0]}
           pages={Object.fromEntries(d.pages.map((p) => [p.id, p.title]))}
         />
@@ -78,7 +79,7 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
 
       {s.teachResult && (
         <Card title="Tutor caught">
-          <ul className="space-y-1 text-sm">{s.teachResult.caught.map((c, k) => <li key={k}>🛑 invoice {c.caseId}: before <code>{c.tool}</code> — {c.explanation} (<Link className="underline" href={`/hub/pages/${c.pageId}`}>page</Link>)</li>)}</ul>
+          <ul className="space-y-1 text-sm">{s.teachResult.caught.map((c, k) => <li key={k}>🛑 invoice {caseLabel(d, c.caseId)}: before <code>{c.tool}</code> — {c.explanation} (<Link className="underline" href={`/hub/pages/${c.pageId}`}>page</Link>)</li>)}</ul>
         </Card>
       )}
     </div>

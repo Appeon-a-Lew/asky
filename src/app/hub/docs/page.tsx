@@ -1,4 +1,4 @@
-import { Card } from "@/components/hub";
+import { Card, PageHeader } from "@/components/hub";
 import { freshDB } from "@/lib/fresh";
 
 // Company docs next to reality: where the written process and the observed
@@ -15,10 +15,7 @@ export default async function Docs() {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Docs & drift</h1>
-        <p className="text-sm text-stone-500">The official documentation is one input — and it is usually outdated. asky shows where reality differs.</p>
-      </div>
+      <PageHeader title="Docs & drift" subtitle={<>The official documentation is one input — and it is usually outdated. asky shows where reality differs.</>} />
       {g.traces.length > 0 && (
         <div className="grid grid-cols-3 gap-4">
           <Card title="Doc contradicted by experts" tone="warn">

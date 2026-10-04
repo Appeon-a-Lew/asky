@@ -41,6 +41,7 @@ async function main() {
 
   // ── Capture ──
   await page.goto(`${BASE}/capture?voice=browser`);
+  await page.getByRole("button", { name: /Ledgerline AP/ }).click(); // ERPNext is the default when it is running
   await page.getByRole("button", { name: "Start session" }).click();
   let f = await app(page);
   await f.getByRole("link", { name: "4471" }).click();
@@ -103,6 +104,7 @@ async function main() {
 
   // ── Teach ──
   await page.goto(`${BASE}/teach?voice=browser`);
+  await page.getByRole("button", { name: /Ledgerline AP/ }).click();
   await page.getByRole("button", { name: "Start training" }).click();
   f = await app(page);
   await f.getByRole("link", { name: "5101" }).click();

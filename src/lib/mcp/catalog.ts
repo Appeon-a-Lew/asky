@@ -54,7 +54,7 @@ export function buildRequest(tool: ToolDef, args: Record<string, unknown>) {
 export function inputSchema(tool: ToolDef) {
   const properties: Record<string, unknown> = {};
   for (const p of tool.params) {
-    properties[p.name] = { type: p.type, description: p.description, ...(p.enum ? { enum: p.enum } : {}) };
+    properties[p.name] = { type: p.type, description: p.description, ...(p.enum ? { enum: p.enum } : {}), ...(p.type === "array" ? { items: { type: "object" } } : {}) };
   }
   return { type: "object", properties, required: tool.params.filter((p) => p.required).map((p) => p.name) };
 }

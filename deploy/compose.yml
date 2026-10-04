@@ -1,0 +1,45 @@
+# asky + Caddy on the demo server (/opt/asky). ERPNext runs as its own stack
+# (deploy/erpnext-compose.yml, /opt/erpnext); all three meet on the external "web" network.
+#
+#   .env       ASKY_TAG, ASKY_HOST, ERP_HOST       (compose variables; ASKY_TAG is set by deploy.sh)
+#   asky.env   API keys + ERPNEXT_USER/PASSWORD    (container environment, never in git)
+#   caddy/auth basic_auth for asky                  (generated on the server)
+name: asky
+
+services:
+  asky:
+    image: ghcr.io/appeon-a-lew/asky:${ASKY_TAG:-latest}
+    restart: unless-stopped
+    env_file: asky.env
+    environment:
+      ASKY_DATA_DIR: /data
+      ERPNEXT_URL: http://frontend:8080
+      ERPNEXT_PUBLIC_URL: https://${ERP_HOST}
+    volumes:
+      - ./data:/data
+    networks: [web]
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      ASKY_HOST: ${ASKY_HOST}
+      ERP_HOST: ${ERP_HOST}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./caddy/auth:/etc/caddy/auth:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    networks: [web]
+
+networks:
+  web:
+    external: true
+
+volumes:
+  caddy-data:
+  caddy-config:

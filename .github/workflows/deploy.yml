@@ -1,0 +1,78 @@
+# Build the asky image, push it to GitHub Container Registry, deploy it to the demo server.
+#
+# The server (deploy/compose.yml in /opt/asky) runs ghcr.io/appeon-a-lew/asky:<tag>.
+# The deploy key can do one thing only: run deploy/deploy.sh (forced command), which
+# pulls the tag with this job's short-lived GITHUB_TOKEN and restarts asky.
+#
+# Repository secret: DEPLOY_SSH_KEY — private key of the deploy key (~/.ssh/asky-deploy).
+# Without it the image is still built and pushed; the deploy step is skipped.
+name: Build and deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+env:
+  IMAGE: ghcr.io/appeon-a-lew/asky
+  DEPLOY_HOST: 2.31.1.203
+  # pinned host key: the deploy cannot be redirected to another machine
+  DEPLOY_HOST_KEY: 2.31.1.203 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOKZ7XKUEGzNU4AfDdF83O6MZWmUboDMBjvGFrZ8ctcb
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: tag
+        run: echo "tag=sha-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:${{ steps.tag.outputs.tag }}
+            ${{ env.IMAGE }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      packages: read
+    environment:
+      name: demo
+      url: https://asky.2-31-1-203.sslip.io
+    steps:
+      - name: Pull and restart on the server
+        env:
+          KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.build.outputs.tag }}
+          ACTOR: ${{ github.actor }}
+        run: |
+          if [ -z "$KEY" ]; then
+            echo "::warning::DEPLOY_SSH_KEY is not set — image pushed as $TAG, not deployed"
+            exit 0
+          fi
+          install -m 600 /dev/null key
+          printf '%s\n' "$KEY" > key
+          printf '%s\n' "$DEPLOY_HOST_KEY" > known_hosts
+          printf '%s' "$TOKEN" | ssh -i key -o IdentitiesOnly=yes -o UserKnownHostsFile=known_hosts "root@$DEPLOY_HOST" "$TAG $ACTOR"
+          rm -f key

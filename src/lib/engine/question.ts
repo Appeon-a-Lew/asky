@@ -1,4 +1,5 @@
 import { llmText, withFallback } from "../llm";
+import { caseLabel } from "./context";
 import type { AppEvent, DB, DecisionRecord, DeviationCandidate, Session } from "../types";
 import type { Detection } from "./deviation";
 
@@ -21,7 +22,7 @@ export async function phraseQuestion(d: DB, session: Session, ev: AppEvent, det:
           deviation: top ?? det.candidates[0],
           question_kind: dec.questionKind,
           supplier: det.ctx?.supplier.name,
-          invoice: det.ctx && { id: det.ctx.invoice.id, amount: det.ctx.invoice.amount, description: det.ctx.invoice.description },
+          invoice: det.ctx && { id: caseLabel(d, det.ctx.invoice.id), amount: det.ctx.invoice.amount, description: det.ctx.invoice.description },
           already_known_pages: det.pages.map((p) => p.title),
           recent_transcript: session.transcript.slice(-6).map((u) => `${u.speaker}: ${u.text}`),
         }),
@@ -34,7 +35,7 @@ export async function phraseQuestion(d: DB, session: Session, ev: AppEvent, det:
 
 export function templateQuestion(d: DB, ev: AppEvent, det: Detection, dec: DecisionRecord, top?: DeviationCandidate): string {
   const c = top ?? det.candidates[0];
-  const id = ev.caseId ? `invoice ${ev.caseId}` : "this one";
+  const id = ev.caseId ? `invoice ${caseLabel(d, ev.caseId)}` : "this one";
   const sup = det.ctx?.supplier.name ?? "this supplier";
   const a = ev.args ?? {};
   switch (c?.type) {

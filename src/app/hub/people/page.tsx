@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Card } from "@/components/hub";
+import { Card, PageHeader } from "@/components/hub";
 import { freshDB } from "@/lib/fresh";
 
 // Who knows what — and which knowledge sits with only one person.
@@ -8,12 +8,9 @@ export default async function People() {
   const experts = d.people.filter((p) => p.kind === "expert");
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">People & coverage</h1>
-        <p className="text-sm text-stone-500">Every page knows whose words it is built on. Pages with a single expert are the knowledge that walks out of the door.</p>
-      </div>
+      <PageHeader title="People & coverage" subtitle={<>Every page knows whose words it is built on. Pages with a single expert are the knowledge that walks out of the door.</>} />
       <Card title="Expertise map">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm [&_td]:pr-4 [&_th]:py-2.5 [&_th]:pr-4">
           <thead className="text-left text-xs text-stone-500"><tr><th className="py-1">Page</th>{experts.map((e) => <th key={e.id} className="text-center">{e.name}</th>)}<th className="text-center">Bus factor</th></tr></thead>
           <tbody>
             {d.pages.map((p) => (

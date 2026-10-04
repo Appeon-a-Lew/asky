@@ -38,6 +38,7 @@ const invoices: Invoice[] = [
   inv({ id: "4472", supplierId: "SUP-KCZ", date: "2025-12-17", dueDate: "2026-01-16", amount: 3200.0, description: "Intercompany machining services Nov", lines: [{ description: "Machining hours Nov (120h)", qty: 120, unitPrice: 26.67, category: "intercompany" }], costCenter: "4711" }),
   inv({ id: "4473", supplierId: "SUP-NRD", date: "2025-12-18", dueDate: "2026-01-17", amount: 1284.5, description: "Office supplies Q4", lines: [{ description: "Toner, paper, binders", qty: 1, unitPrice: 1284.5, category: "office" }], costCenter: "4720" }),
   inv({ id: "4474", supplierId: "SUP-CLP", date: "2025-12-18", dueDate: "2026-01-17", amount: 1950.0, description: "Facility cleaning December", lines: [{ description: "Cleaning services Dec", qty: 1, unitPrice: 1950, category: "service" }], costCenter: "4720" }),
+  inv({ id: "4475", supplierId: "SUP-SCH", date: "2025-12-19", dueDate: "2026-01-18", amount: 1240.0, description: "Freight Ulm → Hamburg port", lines: [{ description: "Truck transport 12/18, 2 pallets", qty: 1, unitPrice: 1240, category: "logistics" }], costCenter: "4800" }),
 
   // Training cases for the new hire — never shown by the expert
   inv({ id: "5101", supplierId: "SUP-PHB", date: "2025-12-19", dueDate: "2026-01-18", amount: 6400.0, description: "Hydraulic press tool set PT-9", poNumber: "PO-88177", lines: [{ description: "Press tool set PT-9", qty: 1, unitPrice: 6400, category: "equipment" }], costCenter: "4711", training: true }),

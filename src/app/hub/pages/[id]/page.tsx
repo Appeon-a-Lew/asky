@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Blame, Card, PageStatus } from "@/components/hub";
+import { Blame, Card, type Clip, PageStatus } from "@/components/hub";
 import { describeCondition } from "@/lib/engine/context";
 import { ago, freshDB, personName } from "@/lib/fresh";
+import ConflictActions from "./ConflictActions";
 import PageActions from "./PageActions";
 
 const KIND: Record<string, { label: string; cls: string }> = {
@@ -23,7 +24,23 @@ export default async function PageView({ params }: { params: Promise<{ id: strin
   const tools = Object.fromEntries((d.tools?.tools ?? []).map((t) => [t.name, t]));
   const heroQuote = p.why.flatMap((w) => w.provenance).find((x) => x.quote);
   const heroFrame = [...p.why, ...p.guardrails].flatMap((x) => x.provenance).find((x) => x.frameId && frames[x.frameId]);
-  const blame = (prov: Parameters<typeof Blame>[0]["prov"]) => <Blame prov={prov} people={people} frames={frames} />;
+  // quotes from an imported recording replay in the expert's own voice
+  const clips: Record<string, Clip> = {};
+  const norm = (t: string) => t.replace(/\[[^\]]*\]/g, "").replace(/[^\p{L}\p{N}]+/gu, " ").trim().toLowerCase();
+  for (const s of d.sessions.filter((x) => x.recording)) {
+    for (const u of s.transcript) if (u.audio) clips[u.id] = { src: `/api/audio/${s.id}`, ...u.audio };
+    for (const x of [...p.why, ...p.guardrails, ...p.steps, ...p.edgeCases].flatMap((y) => y.provenance ?? [])) {
+      if (!x.quote || x.sessionId !== s.id || (x.utteranceId && clips[x.utteranceId])) continue;
+      const q = norm(x.quote).slice(0, 40);
+      const u = s.transcript.find((t) => t.audio && norm(t.text).includes(q));
+      if (u?.audio) clips[x.quote] = { src: `/api/audio/${s.id}`, ...u.audio };
+    }
+  }
+  const blame = (prov: Parameters<typeof Blame>[0]["prov"]) => <Blame prov={prov} people={people} frames={frames} clips={clips} />;
+  const openConflicts = (p.conflicts ?? []).filter((c) => c.status !== "resolved");
+  const paused = new Set(openConflicts.filter((c) => c.status === "disputed").flatMap((c) => [...c.older.itemIds, ...c.newer.itemIds]));
+  const rulesOff = new Map((p.conflicts ?? []).filter((c) => c.resolution !== "keep_old" && c.resolution !== "both").flatMap((c) => (c.rulesOff ?? []).map((r) => [r.guardrailId, { rule: r.rule, conflict: c }] as const)));
+  const LIST_LABEL: Record<string, string> = { recognize: "recognize", steps: "step", why: "reason", guardrails: "guardrail", edgeCases: "edge case" };
 
   return (
     <div className="space-y-4">
@@ -32,7 +49,7 @@ export default async function PageView({ params }: { params: Promise<{ id: strin
           <div className="mb-1 flex items-center gap-2 text-xs text-stone-500">
             <Link href="/hub/pages" className="hover:underline">Pages</Link><span>/</span><PageStatus status={p.status} /><span>v{p.version}</span><span>· updated {ago(p.updatedAt)}</span>
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight">{p.title}</h1>
+          <h1 className="text-[26px] font-semibold leading-tight tracking-tight text-stone-900">{p.title}</h1>
           <p className="mt-1 text-stone-600">{p.situation}</p>
         </div>
         <PageActions pageId={p.id} status={p.status} />
@@ -50,6 +67,27 @@ export default async function PageView({ params }: { params: Promise<{ id: strin
           </div>
         </figure>
       )}
+
+      {openConflicts.map((c) => (
+        <section key={c.id} className={`rounded-xl border p-4 ${c.status === "disputed" ? "border-orange-300 bg-orange-50" : "border-amber-300 bg-amber-50"}`}>
+          <div className="mb-1 text-xs font-bold uppercase tracking-wide text-stone-700">
+            {c.status === "disputed" ? "Experts disagree — the contested rules are paused" : "Knowledge changed — the newer version is applied, please confirm"}
+          </div>
+          <p className="text-sm font-medium text-stone-900">{c.summary}</p>
+          <div className="mt-3 grid gap-3 text-sm md:grid-cols-2">
+            <div className="rounded-lg bg-white/70 p-3">
+              <div className="mb-1 text-xs font-semibold text-stone-500">Earlier — {c.older.by.join(", ") || "earlier sessions"}</div>
+              <ul className="space-y-1">{c.older.texts.map((t, k) => <li key={k} className={c.status === "review" ? "text-stone-500 line-through" : ""}>{t}</li>)}</ul>
+              {!!c.rulesOff?.length && <div className="mt-1 text-xs text-stone-500">{c.rulesOff.length} rule{c.rulesOff.length > 1 ? "s" : ""} switched off (the guardrail text stays)</div>}
+            </div>
+            <div className="rounded-lg bg-white/70 p-3">
+              <div className="mb-1 text-xs font-semibold text-stone-500">Newer — {c.newer.by}, {new Date(c.at).toLocaleDateString()}{c.newer.sessionId && <> · <Link className="underline" href={`/hub/sessions/${c.newer.sessionId}`}>session</Link></>}</div>
+              <ul className="space-y-1">{c.newer.texts.map((t, k) => <li key={k}>{t}</li>)}</ul>
+            </div>
+          </div>
+          <div className="mt-3"><ConflictActions pageId={p.id} conflict={c} /></div>
+        </section>
+      ))}
 
       <div className="grid grid-cols-3 gap-4">
         <div className="col-span-2 space-y-4">
@@ -95,8 +133,15 @@ export default async function PageView({ params }: { params: Promise<{ id: strin
                     <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${KIND[g.kind].cls}`}>{KIND[g.kind].label}</span>
                     <span className="font-medium">{g.text}</span>
                     {g.contact && <span className="text-xs text-stone-500">→ {g.contact}</span>}
+                    {paused.has(g.id) && <span className="rounded bg-orange-100 px-1.5 py-0.5 text-[10px] font-semibold text-orange-800">PAUSED — experts disagree</span>}
                     {blame(g.provenance)}
                   </div>
+                  {!g.rule && rulesOff.has(g.id) && (
+                    <div className="mt-1 font-mono text-[11px] text-stone-400 line-through">
+                      before {rulesOff.get(g.id)!.rule.onTool} when {rulesOff.get(g.id)!.rule.when.map(describeCondition).join(" ∧ ")}
+                    </div>
+                  )}
+                  {!g.rule && rulesOff.has(g.id) && <div className="text-[11px] text-stone-500">rule switched off: {rulesOff.get(g.id)!.conflict.summary}</div>}
                   {g.rule && (
                     <div className="mt-1 font-mono text-[11px] text-stone-500">
                       before <b>{g.rule.onTool}</b> when {g.rule.when.map(describeCondition).join(" ∧ ")}
@@ -110,6 +155,21 @@ export default async function PageView({ params }: { params: Promise<{ id: strin
               {!p.guardrails.length && <li className="text-xs text-stone-400">No guardrails captured yet.</li>}
             </ul>
           </Card>
+
+          {!!p.superseded?.length && (
+            <Card title="Superseded">
+              <p className="mb-2 text-xs text-stone-500">No longer true — kept with who said it, so the change can be traced or undone.</p>
+              <ul className="space-y-2 text-sm">
+                {p.superseded.map((x) => (
+                  <li key={x.item.id}>
+                    <span className="mr-2 rounded bg-stone-100 px-1.5 py-0.5 text-[10px] uppercase text-stone-500">{LIST_LABEL[x.list]}</span>
+                    <span className="text-stone-500 line-through">{x.item.text}</span> {blame(x.item.provenance)}
+                    <div className="text-[11px] text-stone-500">{x.reason} · {new Date(x.at).toLocaleDateString()}</div>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          )}
 
           {(p.edgeCases.length > 0 || p.troubleshooting.length > 0) && (
             <Card title="Edge cases & troubleshooting">

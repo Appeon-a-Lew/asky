@@ -72,6 +72,9 @@ export interface Invoice {
   notes: InvoiceNote[];
   postedAt?: string;
   training?: boolean; // only visible in Teach mode
+  title?: string; // what the app shows in its form header (ERPNext: "4471 · Fräswerk Ulm GmbH")
+  source?: "erpnext"; // mirrored from a real application
+  erpName?: string; // the application's own document name, e.g. ACC-PINV-2026-00004
 }
 
 // ---------------------------------------------------------------------------
@@ -83,7 +86,7 @@ export type ToolEffect = "read" | "write" | "irreversible";
 export interface ToolParam {
   name: string;
   in: "path" | "query" | "body";
-  type: "string" | "number" | "boolean";
+  type: "string" | "number" | "boolean" | "array"; // array: rows of a child table (ERPNext taxes, items)
   required: boolean;
   description?: string;
   enum?: string[];
@@ -107,6 +110,15 @@ export interface ToolCatalog {
   generatedAt: string;
   generator: "llm" | "heuristic";
   tools: ToolDef[];
+  /** for another app: which of its tools implement each step of the reference vocabulary (the mock app's catalog) */
+  alignment?: ToolAlignment[];
+}
+
+export interface ToolAlignment {
+  canonical: string; // reference tool, e.g. set_invoice_coding
+  tools: string[]; // this app's tools that implement it, e.g. update_purchase_invoice_accounting_dimensions
+  args?: Record<string, string>; // canonical arg → this app's field, e.g. costCenter → cost_center
+  note?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -150,6 +162,8 @@ export interface Utterance {
   text: string;
   questionId?: string;
   offRecord?: boolean;
+  /** imported recording: where in the session's audio this was said (seconds) */
+  audio?: { start: number; end: number };
 }
 
 // ---------------------------------------------------------------------------
@@ -237,10 +251,16 @@ export type SessionMode = "capture" | "teach" | "interview_free" | "interview_gu
 export interface Session {
   id: string;
   mode: SessionMode;
+  /** application the expert works in: the instrumented mock (default) or a real app seen only through screen share */
+  target?: "ledgerline" | "erpnext";
+  /** last structured screen state the vision model read (ERPNext target) */
+  screen?: ScreenState;
   personId: string;
   title: string;
   startedAt: number;
   endedAt?: number;
+  /** stopped with "Finish" before the teach-back was confirmed: nothing was committed to the hub */
+  endedEarly?: boolean;
   phase: "live" | "debrief" | "teachback" | "done";
   events: AppEvent[];
   frames: Frame[];
@@ -251,6 +271,8 @@ export interface Session {
   workMap?: WorkMap;
   trainingCaseIds?: string[];
   teachResult?: TeachResult;
+  /** imported recording (interviews): file under data/audio, language and speech-to-text engine */
+  recording?: { file: string; mime: string; language?: string; durationSec?: number; stt: string };
 }
 
 // ---------------------------------------------------------------------------
@@ -320,12 +342,47 @@ export interface Page {
   troubleshooting: { id: string; symptom: string; cause: string; fix: string; contact?: string; provenance: Provenance[] }[];
   mistakes: { id: string; text: string; count: number; lastAt: number }[];
   openQuestions: string[];
-  status: "draft" | "confirmed" | "stale";
+  /** disputed: two experts disagree — the contested rules are paused until someone decides */
+  status: "draft" | "confirmed" | "stale" | "disputed";
   version: number;
   history: { version: number; at: number; summary: string; by: string; sessionId?: string }[];
   experts: string[];
   createdAt: number;
   updatedAt: number;
+  /** newer knowledge that contradicts older knowledge on this page, and what was decided */
+  conflicts?: PageConflict[];
+  /** items taken out of the live page by a conflict — kept, attributed, and restorable */
+  superseded?: SupersededItem[];
+}
+
+export type PageList = "recognize" | "steps" | "why" | "guardrails" | "edgeCases";
+
+export interface PageConflict {
+  id: string;
+  /** changed: the world changed, the newer statement wins · disagreement: experts describe it differently, nobody wins yet */
+  kind: "changed" | "disagreement";
+  /** review: the newer statement was applied, a person should confirm · disputed: nothing applied, rules paused · resolved */
+  status: "review" | "disputed" | "resolved";
+  at: number;
+  summary: string;
+  older: { by: string[]; itemIds: string[]; texts: string[] };
+  newer: { by: string; sessionId?: string; itemIds: string[]; texts: string[] };
+  /** guardrails whose machine rule encoded the outdated fact (the text stays, the rule is switched off) */
+  rulesOff?: { guardrailId: string; rule: GuardRule }[];
+  /** the page as it was, for "keep old" */
+  before?: { title: string; situation: string; triggers: Condition[]; triggerText: string };
+  resolution?: "keep_new" | "keep_old" | "both";
+  resolvedBy?: string;
+  resolvedAt?: number;
+}
+
+export interface SupersededItem {
+  list: PageList;
+  item: PageItem | Guardrail;
+  conflictId: string;
+  at: number;
+  by: string;
+  reason: string;
 }
 
 export type GNodeType =
@@ -476,7 +533,68 @@ export interface DB {
   graph: ExecGraph;
   lessons: Lesson[];
   tools?: ToolCatalog;
+  /** generated domain MCPs of other applications (e.g. "erpnext"), keyed by app */
+  catalogs?: Record<string, ToolCatalog>;
+  /** read-only mirror of a real application's AP data, refreshed from its API */
+  erp?: { app: "erpnext"; baseUrl: string; syncedAt: number; invoices: Invoice[]; suppliers: Supplier[]; costCenters: CostCenter[] };
+  /** the company's supplier blacklist, dated — rules check "supplier.blacklisted" against it */
+  blacklist?: BlacklistEntry[];
+  /** list changes asky heard someone state — applied only when a person agrees */
+  blacklistSuggestions?: BlacklistSuggestion[];
   settings: Settings;
+}
+
+export interface BlacklistSuggestion {
+  id: string;
+  action: "add" | "remove";
+  supplierName: string;
+  /** not one of the suppliers asky knows from the apps */
+  unknownSupplier?: boolean;
+  reason: string;
+  quote: string;
+  personId: string;
+  sessionId: string;
+  utteranceId?: string;
+  /** when it was said — becomes the listing date if applied */
+  at: number;
+  status: "pending" | "applied" | "dismissed";
+  decidedBy?: string;
+  decidedAt?: number;
+}
+
+/** One listing of a supplier: matched by name, so it holds for the mock app and for ERPNext alike. */
+export interface BlacklistEntry {
+  id: string;
+  supplierName: string;
+  reason: string;
+  /** where it was announced, e.g. "company Slack #announcements" */
+  source?: string;
+  addedAt: number;
+  addedBy: string;
+  removedAt?: number;
+  removedBy?: string;
+  removedReason?: string;
+  /** the session where someone said so, if it came from asky */
+  sessionIds?: string[];
+}
+
+/** What the vision model reads off one frame of a real application. */
+export interface ScreenState {
+  app: string; // "ERPNext", "Excel", …
+  view: "invoice_form" | "invoice_list" | "supplier_history" | "dialog" | "other";
+  invoiceRef?: string; // what identifies the invoice on screen, e.g. "4471"
+  costCenter?: string; // code as shown, e.g. "4711"
+  assetNumber?: string;
+  onHold?: boolean;
+  status?: string; // indicator text: Draft, Pending Approval, Approved, Submitted / Unpaid …
+  unsaved?: boolean; // "Not Saved" indicator
+  dialog?: string; // text of a confirm dialog in front, e.g. "Permanently Submit Purchase Invoice?"
+  supplier?: string; // supplier filter on a list / history view
+  comment?: string; // newest comment text on the form
+  section?: string; // form tab / section in view, e.g. "Taxes and Charges"
+  activity?: string; // what changed since the previous frame, as read off the screen (unconfirmed)
+  caption: string;
+  ts: number;
 }
 
 /** Context a guardrail / deviation check sees for one case. */
@@ -490,6 +608,6 @@ export interface CaseContext {
     approvalRoles: string[]; // roles approval was requested from
     approvedRoles: string[]; // roles that already approved
   };
-  supplier: Supplier & { isNew: boolean; priorInvoicesSameAmount: number };
+  supplier: Supplier & { isNew: boolean; priorInvoicesSameAmount: number; blacklisted: boolean; blacklistReason?: string };
   trace: string[]; // tools called so far in this case
 }

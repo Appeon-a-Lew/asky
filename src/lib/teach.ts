@@ -1,5 +1,5 @@
 import "server-only";
-import { buildCaseContext, matchPages } from "./engine/context";
+import { buildCaseContext, caseLabel, matchPages } from "./engine/context";
 import { llmJSON, withFallback } from "./llm";
 import { db, mutate } from "./store";
 import type { Page } from "./types";
@@ -25,7 +25,7 @@ export function predictionPrompt(caseId: string) {
   return {
     pageId: p.id,
     pageTitle: p.title,
-    question: `Invoice ${caseId} is from ${ctx.supplier.name}, ${ctx.invoice.description} for ${ctx.invoice.amount.toLocaleString("en-US")} euros. Before you touch anything — what do you think ${expert} would do here?`,
+    question: `Invoice ${caseLabel(d, caseId)} is from ${ctx.supplier.name}, ${ctx.invoice.description} for ${ctx.invoice.amount.toLocaleString("en-US")} euros. Before you touch anything — what do you think ${expert} would do here?`,
   };
 }
 
@@ -60,6 +60,10 @@ export async function judgePrediction(pageId: string, answer: string) {
   return res.value;
 }
 
+// where things are on screen, per app — the tutor names buttons and fields exactly as the learner sees them
+const LEDGERLINE_HELP = "Open an invoice from the inbox. In 'Account assignment' pick the cost center and type the asset number, then click 'Save coding'. Approvals: 'Request approval…'. Duplicates: 'Show supplier history', then 'Put on hold…'. 'Post invoice' is final.";
+const ERPNEXT_HELP = "ERPNext: open Accounting → 'Purchase Invoice' and click the invoice. 'Cost Center', 'Asset Number' and 'Project' are in the 'Accounting Dimensions' section of the form; tax lines are in the 'Purchase Taxes and Charges' table under 'Taxes and Charges'. Save with 'Save' (Ctrl+S). The 'Actions' button has 'Request Approval', 'Approve', 'Hold' and 'Post' — 'Post' is final and asks 'Are you sure you want to Post?'. Supplier history: the Purchase Invoice list filtered by 'Supplier'. Comments go in the comment box at the bottom of the form.";
+
 /** Answer the learner — or null when the utterance was not meant for the tutor (always-on mic). */
 export async function answerLearner(question: string, caseId?: string): Promise<string | null> {
   const d = db();
@@ -75,10 +79,14 @@ export async function answerLearner(question: string, caseId?: string): Promise<
         system: `You are a voice tutor for a new accounts-payable clerk. Your microphone is always on, so you also hear background talk, other people, and the learner thinking aloud. Set addressed=false for anything that is not a question or request to you about the work (invoices, the app, the process, the rules). Otherwise answer in at most 3 short spoken sentences, in the SAME LANGUAGE as the learner, using ONLY the knowledge given. Quote the expert (Sabine) when helpful. If no invoice is open and they ask how to start, walk them through the first steps of the process. If the knowledge does not cover it, say so and suggest asking Sabine. Keep button and field names exactly as written in app_help (in English, in quotes), even when answering in another language.`,
         prompt: JSON.stringify({
           learner_said: question,
-          open_invoice: ctx && { id: ctx.invoice.id, supplier: ctx.supplier.name, country: ctx.supplier.country, group_company: ctx.supplier.isSubsidiary, amount: ctx.invoice.amount, description: ctx.invoice.description, cost_center: ctx.invoice.costCenter, asset_number: ctx.invoice.assetNumber ?? null, status: ctx.invoice.status },
+          open_invoice: ctx && { id: caseLabel(d, ctx.invoice.id), supplier: ctx.supplier.name, supplier_blacklisted: ctx.supplier.blacklisted ? ctx.supplier.blacklistReason ?? true : false, country: ctx.supplier.country, group_company: ctx.supplier.isSubsidiary, amount: ctx.invoice.amount, description: ctx.invoice.description, cost_center: ctx.invoice.costCenter, asset_number: ctx.invoice.assetNumber ?? null, status: ctx.invoice.status },
           process_steps: steps,
-          app_help: "Open an invoice from the inbox. In 'Account assignment' pick the cost center and type the asset number, then click 'Save coding'. Approvals: 'Request approval…'. Duplicates: 'Show supplier history', then 'Put on hold…'. 'Post invoice' is final.",
-          pages: all.slice(0, 8).map((p) => ({ title: p.title, when: p.triggerText, steps: p.steps.map((s) => s.text), guardrails: p.guardrails.map((g) => g.text), why: p.why.map((w) => w.text) })),
+          app_help: d.erp?.invoices.some((i) => i.id === caseId) ? ERPNEXT_HELP : LEDGERLINE_HELP,
+          pages: all.slice(0, 8).map((p) => ({
+            title: p.title, when: p.triggerText, steps: p.steps.map((s) => s.text), guardrails: p.guardrails.map((g) => g.text), why: p.why.map((w) => w.text),
+            // experts disagree here: say so and send the learner to them, don't pick a side
+            ...(p.status === "disputed" ? { disputed: (p.conflicts ?? []).filter((c) => c.status === "disputed").map((c) => c.summary) } : {}),
+          })),
         }),
         schema: { type: "object", properties: { addressed: { type: "boolean" }, answer: { type: "string" } }, required: ["addressed", "answer"] },
       });

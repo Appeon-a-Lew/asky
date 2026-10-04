@@ -13,6 +13,8 @@ import type { Voice } from "./voice/VoiceProvider";
 
 const OFF = /\b(off the record|nicht aufnehmen)\b/i;
 const ON = /\b(back on (the )?record|on the record again|wieder aufnehmen)\b/i;
+/** while a long text (the teach-back) is still being read, only a clear yes / no / stop may cut it short */
+const BARGE_IN = /^(yes|yeah|yep|no|nope|stop|wait|correct|exactly|that'?s (right|correct|wrong|it)|ja|nein|genau|stimmt|moment)\b/i;
 
 export interface InterruptState {
   pauseFor: number; // ms since last activity
@@ -84,7 +86,7 @@ export function useInterrupts(opts: {
     // listen before speaking: an answer may start while the question is still being said
     const answered = new Promise<string>((resolve) => answerWaiters.current.push(resolve));
     await api.utter(sessionId, { speaker: "agent", text: q.text, questionId: q.id });
-    await voice.say(q.text, kind);
+    await voice.say(q.text, kind, q.timing === "pre_commit"); // the question before an irreversible step wins over anything else
     const answer = await answered;
     setState((s) => ({ ...s, active: null, asked: [...s.asked, { ...q, status: "answered", answer }] }));
     busy.current = false;
@@ -118,6 +120,8 @@ export function useInterrupts(opts: {
       const active = st.current.active;
       await api.utter(sessionId, { speaker, text: u.text, questionId: active?.id, ts: u.ts });
       if (active) {
+        // side talk (or our own voice) while the teach-back is read is not an answer
+        if (voice.agentSpeaking && active.kind === "teachback" && !BARGE_IN.test(u.text.trim())) return;
         if (voice.agentSpeaking) voice.hush(); // they already answer — stop talking
         answerBuf.current = { text: `${answerBuf.current?.text ?? ""} ${u.text}`.trim(), lastAt: Date.now() };
       }
