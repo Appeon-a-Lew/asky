@@ -1,10 +1,13 @@
 import "server-only";
+import { headers } from "next/headers";
 import { connection } from "next/server";
 import { db } from "./store";
+import { enterWorkspace, workspaceFromHeaders } from "./workspace";
 
-/** Read the DB at request time (never prerendered). */
+/** Read the request's workspace DB at request time (never prerendered). */
 export async function freshDB() {
   await connection();
+  enterWorkspace(workspaceFromHeaders(await headers()));
   return db();
 }
 

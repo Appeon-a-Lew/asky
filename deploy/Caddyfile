@@ -1,8 +1,8 @@
 # HTTPS is required: browsers only allow screen sharing and the microphone on secure origins.
 
 {$ASKY_HOST} {
-	# a public URL would let anyone spend the API keys
-	import /etc/caddy/auth
+	# public: the landing page is open; the app itself gates everything else
+	# (signed workspace cookie: event code for the audience, password for the presenter)
 	reverse_proxy asky:3210
 }
 

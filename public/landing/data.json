@@ -1,0 +1,949 @@
+{
+ "builtAt": "2026-10-04T10:49:58.613Z",
+ "frames": [
+  {
+   "file": "01-inbox.jpg",
+   "title": "inbox",
+   "screen": {
+    "app": "Buying",
+    "view": "invoice_list",
+    "caption": "The clerk is viewing a list of six draft purchase invoices from different suppliers."
+   }
+  },
+  {
+   "file": "02-open-4469.jpg",
+   "title": "open 4469",
+   "screen": {
+    "app": "Buying",
+    "view": "invoice_form",
+    "invoiceRef": "4469",
+    "costCenter": "4711",
+    "status": "Draft",
+    "caption": "The clerk is viewing a draft purchase invoice for Hydrotec Antriebe GmbH."
+   }
+  },
+  {
+   "file": "03-post-4469-confirm-dialog.jpg",
+   "title": "post 4469 confirm dialog",
+   "screen": {
+    "app": "Buying",
+    "view": "dialog",
+    "invoiceRef": "4469",
+    "costCenter": "4711",
+    "status": "Draft",
+    "dialog": "Are you sure you want to Post?",
+    "caption": "The clerk is confirming whether to post the purchase invoice."
+   }
+  },
+  {
+   "file": "04-4469-posted.jpg",
+   "title": "4469 posted",
+   "screen": {
+    "app": "Buying",
+    "view": "invoice_form",
+    "invoiceRef": "4469",
+    "costCenter": "4711",
+    "status": "Posted",
+    "caption": "The clerk is viewing the posted purchase invoice for Hydrotec Antriebe GmbH."
+   }
+  },
+  {
+   "file": "05-open-4471.jpg",
+   "title": "open 4471",
+   "screen": {
+    "app": "Buying",
+    "view": "invoice_form",
+    "invoiceRef": "4471",
+    "costCenter": "4711",
+    "status": "Draft",
+    "caption": "The clerk is viewing the draft purchase invoice 4471 for Fräswerk Ulm GmbH."
+   }
+  },
+  {
+   "file": "06-4471-recoded-not-saved.jpg",
+   "title": "4471 recoded not saved",
+   "screen": {
+    "app": "Buying",
+    "view": "invoice_form",
+    "invoiceRef": "4471",
+    "costCenter": "0400",
+    "assetNumber": "AN-2025-0142",
+    "status": "Not Saved",
+    "caption": "The clerk is viewing the unsaved purchase invoice 4471 with an updated cost center."
+   }
+  },
+  {
+   "file": "07-4471-saved.jpg",
+   "title": "4471 saved",
+   "screen": {
+    "app": "Buying",
+    "view": "invoice_form",
+    "invoiceRef": "4471",
+    "costCenter": "0400",
+    "assetNumber": "AN-2025-0142",
+    "status": "Draft",
+    "caption": "The clerk has saved the purchase invoice 4471 with the updated cost center."
+   }
+  },
+  {
+   "file": "08-post-4471-confirm-dialog.jpg",
+   "title": "post 4471 confirm dialog",
+   "screen": {
+    "app": "Buying",
+    "view": "dialog",
+    "invoiceRef": "4471",
+    "costCenter": "0400",
+    "assetNumber": "AN-2025-0142",
+    "status": "Draft",
+    "dialog": "Are you sure you want to Post?",
+    "caption": "The clerk is confirming the posting of purchase invoice 4471."
+   }
+  },
+  {
+   "file": "09-4471-posted.jpg",
+   "title": "4471 posted",
+   "screen": {
+    "app": "Buying",
+    "view": "invoice_form",
+    "invoiceRef": "4471",
+    "costCenter": "0400",
+    "assetNumber": "AN-2025-0142",
+    "status": "Posted",
+    "caption": "The clerk has successfully posted purchase invoice 4471 for Fräswerk Ulm GmbH."
+   }
+  },
+  {
+   "file": "10-open-4472.jpg",
+   "title": "open 4472",
+   "screen": {
+    "app": "Buying",
+    "view": "invoice_form",
+    "invoiceRef": "4472",
+    "costCenter": "4711",
+    "status": "Draft",
+    "caption": "The clerk is viewing a new draft purchase invoice 4472 from Keller CZ s.r.o."
+   }
+  },
+  {
+   "file": "11-request-approval-4472-confirm-dialog.jpg",
+   "title": "request approval 4472 confirm dialog",
+   "screen": {
+    "app": "Buying",
+    "view": "dialog",
+    "invoiceRef": "4472",
+    "costCenter": "4711",
+    "dialog": "Are you sure you want to Request Approval?",
+    "caption": "The clerk is confirming a request to submit the invoice for approval."
+   }
+  },
+  {
+   "file": "12-4472-pending-approval.jpg",
+   "title": "4472 pending approval",
+   "screen": {
+    "app": "Buying",
+    "view": "invoice_form",
+    "invoiceRef": "4472",
+    "costCenter": "4711",
+    "status": "Pending Approval",
+    "caption": "The clerk is viewing the Details tab of Purchase Invoice 4472 after submitting it for approval."
+   }
+  },
+  {
+   "file": "13-controller-approves-4472-confirm-dialog.jpg",
+   "title": "controller approves 4472 confirm dialog",
+   "screen": {
+    "app": "Buying",
+    "view": "dialog",
+    "invoiceRef": "4472",
+    "costCenter": "4711",
+    "dialog": "Are you sure you want to Approve?",
+    "caption": "The clerk is confirming approval of Purchase Invoice 4472."
+   }
+  },
+  {
+   "file": "14-4472-approved.jpg",
+   "title": "4472 approved",
+   "screen": {
+    "app": "Buying",
+    "view": "invoice_form",
+    "invoiceRef": "4472",
+    "costCenter": "4711",
+    "status": "Approved",
+    "caption": "The clerk is viewing the approved Purchase Invoice 4472 for Keller CZ s.r.o."
+   }
+  },
+  {
+   "file": "15-post-4472-confirm-dialog.jpg",
+   "title": "post 4472 confirm dialog",
+   "screen": {
+    "app": "Buying",
+    "view": "dialog",
+    "invoiceRef": "4472",
+    "costCenter": "4711",
+    "status": "Approved",
+    "dialog": "Are you sure you want to Post?",
+    "caption": "The clerk is confirming the posting of Purchase Invoice 4472."
+   }
+  },
+  {
+   "file": "16-4472-posted.jpg",
+   "title": "4472 posted",
+   "screen": {
+    "app": "Buying",
+    "view": "invoice_form",
+    "invoiceRef": "4472",
+    "costCenter": "4711",
+    "status": "Posted",
+    "caption": "The clerk is viewing the details of Posted Purchase Invoice 4472 for Keller CZ s.r.o."
+   }
+  },
+  {
+   "file": "17-open-4473.jpg",
+   "title": "open 4473",
+   "screen": {
+    "app": "Buying",
+    "view": "invoice_form",
+    "invoiceRef": "4473",
+    "costCenter": "4720",
+    "status": "Draft",
+    "caption": "The clerk is viewing the details of Draft Purchase Invoice 4473 for Nordlicht Bürobedarf GmbH."
+   }
+  },
+  {
+   "file": "18-Nordlicht-history.jpg",
+   "title": "Nordlicht history",
+   "screen": {
+    "app": "Buying",
+    "view": "supplier_history",
+    "supplier": "Nordlicht Bürobedarf GmbH",
+    "caption": "The clerk is viewing the purchase invoice history filtered to Nordlicht Bürobedarf GmbH."
+   }
+  },
+  {
+   "file": "19-4473-comment.jpg",
+   "title": "4473 comment",
+   "screen": {
+    "app": "Buying",
+    "view": "invoice_form",
+    "invoiceRef": "4473",
+    "status": "Draft",
+    "caption": "The clerk is viewing purchase invoice 4473 from Nordlicht Bürobedarf GmbH and reviewing the comment about a duplicate invoice."
+   }
+  },
+  {
+   "file": "20-hold-4473-confirm-dialog.jpg",
+   "title": "hold 4473 confirm dialog",
+   "screen": {
+    "app": "Buying",
+    "view": "dialog",
+    "invoiceRef": "4473",
+    "dialog": "Are you sure you want to Hold?",
+    "caption": "The clerk is confirming to hold purchase invoice 4473."
+   }
+  },
+  {
+   "file": "21-4473-on-hold.jpg",
+   "title": "4473 on hold",
+   "screen": {
+    "app": "Buying",
+    "view": "invoice_form",
+    "invoiceRef": "4473",
+    "status": "On Hold",
+    "caption": "The clerk is viewing purchase invoice 4473 for Nordlicht Bürobedarf GmbH, which is now on hold."
+   }
+  },
+  {
+   "file": "22-Lena-opens-5101.jpg",
+   "title": "Lena opens 5101",
+   "screen": {
+    "app": "Buying",
+    "view": "invoice_form",
+    "invoiceRef": "5101",
+    "costCenter": "4711",
+    "status": "Draft",
+    "caption": "The clerk is viewing purchase invoice 5101 for Pressenbau Heilbronn GmbH in draft status."
+   }
+  },
+  {
+   "file": "23-Lena-posts-5101-on-opex-confirm-dialog.jpg",
+   "title": "Lena posts 5101 on opex confirm dialog",
+   "screen": {
+    "app": "Buying",
+    "view": "dialog",
+    "invoiceRef": "5101",
+    "costCenter": "4711",
+    "dialog": "Are you sure you want to Post?",
+    "caption": "The clerk is confirming to post purchase invoice 5101."
+   }
+  },
+  {
+   "file": "24-Lena-recodes-5101-to-capex.jpg",
+   "title": "Lena recodes 5101 to capex",
+   "screen": {
+    "app": "Buying",
+    "view": "invoice_form",
+    "invoiceRef": "5101",
+    "costCenter": "0400",
+    "assetNumber": "AN-2025-0177",
+    "status": "Draft",
+    "supplier": "Pressenbau Heilbronn GmbH",
+    "caption": "The clerk has posted purchase invoice 5101 and is viewing the Details section."
+   }
+  },
+  {
+   "file": "25-Lena-posts-5101-after-recoding-confirm-dialog.jpg",
+   "title": "Lena posts 5101 after recoding confirm dialog",
+   "screen": {
+    "app": "Buying",
+    "view": "dialog",
+    "invoiceRef": "5101",
+    "costCenter": "0400",
+    "assetNumber": "AN-2025-0177",
+    "status": "Draft",
+    "dialog": "Are you sure you want to Post?",
+    "supplier": "Pressenbau Heilbronn GmbH",
+    "caption": "A confirmation dialog is asking if the clerk is sure they want to Post the invoice."
+   }
+  },
+  {
+   "file": "26-Lena-opens-5102.jpg",
+   "title": "Lena opens 5102",
+   "screen": {
+    "app": "Buying",
+    "view": "invoice_form",
+    "invoiceRef": "5102",
+    "costCenter": "4711",
+    "status": "Draft",
+    "caption": "The clerk is viewing a new Purchase Invoice from Keller CZ s.r.o. in Draft status."
+   }
+  },
+  {
+   "file": "27-Lena-posts-5102-without-approval-confirm-dialog.jpg",
+   "title": "Lena posts 5102 without approval confirm dialog",
+   "screen": {
+    "app": "Buying",
+    "view": "invoice_form",
+    "invoiceRef": "5102",
+    "costCenter": "4711",
+    "status": "Draft",
+    "dialog": "Are you sure you want to Post?",
+    "caption": "The clerk is confirming to post Purchase Invoice 5102."
+   }
+  }
+ ],
+ "decisions": {
+  "capex": {
+   "engine": "jev",
+   "action": "ask_before_commit",
+   "probabilities": {
+    "ask_before_commit": 0.66,
+    "ignore": 0.02,
+    "ask_now": 0.28,
+    "queue_debrief": 0.04
+   },
+   "confidence": 0.56,
+   "latencyMs": 307,
+   "deviation": "Changed set invoice coding 4711 (opex) → 0400 (capex)",
+   "question": "Why did you reclassify this CNC spindle unit from opex cost center 4711 to capex asset 0400—is it being capitalized because it exceeds a threshold?",
+   "answer": "Yes. Anything above five tou-- 5,000 euros needs to be in CapEx.",
+   "expert": "Sabine Weber"
+  },
+  "fallback": {
+   "engine": "rules",
+   "action": "ask_now",
+   "probabilities": {
+    "ask_now": 0.23,
+    "queue_debrief": 0.34,
+    "ignore": 0.04,
+    "ask_before_commit": 0.39
+   },
+   "confidence": 0.19,
+   "latencyMs": 321,
+   "fellBack": "Jev confidence 0.19 < 0.45",
+   "deviation": "Step \"update_purchase_invoice_purchase_taxes_and_charges\" is not in the documented process",
+   "question": "Why did you add the 7% deductible input tax to this office supplies invoice instead of posting it directly?",
+   "answer": "Because we usually add the tags in the ticket itself.",
+   "expert": "Sabine Weber"
+  },
+  "jevCount": 5,
+  "medianMs": 313
+ },
+ "harness": {
+  "tools": [
+   {
+    "name": "list_purchase_invoices",
+    "title": "Search supplier invoices",
+    "effect": "read"
+   },
+   {
+    "name": "get_purchase_invoice",
+    "title": "Open a supplier invoice",
+    "effect": "read"
+   },
+   {
+    "name": "update_purchase_invoice_supplier_invoice",
+    "title": "Record supplier's invoice number and date",
+    "effect": "write"
+   },
+   {
+    "name": "update_purchase_invoice_accounting_dimensions",
+    "title": "Re-code invoice to a cost center or project",
+    "effect": "write"
+   },
+   {
+    "name": "update_purchase_invoice_currency_and_price_list",
+    "title": "Set invoice currency and exchange rate",
+    "effect": "write"
+   },
+   {
+    "name": "update_purchase_invoice_items",
+    "title": "Set receiving warehouses and stock update",
+    "effect": "write"
+   },
+   {
+    "name": "update_purchase_invoice_taxes_and_charges",
+    "title": "Apply tax template and shipping terms",
+    "effect": "write"
+   },
+   {
+    "name": "update_purchase_invoice_totals",
+    "title": "Adjust rounding settings",
+    "effect": "write"
+   },
+   {
+    "name": "update_purchase_invoice_tax_withholding_entry",
+    "title": "Configure tax withholding",
+    "effect": "write"
+   },
+   {
+    "name": "update_purchase_invoice_additional_discount",
+    "title": "Apply an invoice-level discount",
+    "effect": "write"
+   },
+   {
+    "name": "update_purchase_invoice_payments",
+    "title": "Record immediate payment on invoice",
+    "effect": "write"
+   },
+   {
+    "name": "update_purchase_invoice_advance_payments",
+    "title": "Configure advance allocation",
+    "effect": "write"
+   },
+   {
+    "name": "update_purchase_invoice_write_off",
+    "title": "Write off small invoice balance",
+    "effect": "write"
+   },
+   {
+    "name": "update_purchase_invoice_supplier_address",
+    "title": "Set supplier address and contact",
+    "effect": "write"
+   },
+   {
+    "name": "update_purchase_invoice_shipping_address",
+    "title": "Set company shipping address",
+    "effect": "write"
+   },
+   {
+    "name": "update_purchase_invoice_company_billing_address",
+    "title": "Set company billing address",
+    "effect": "write"
+   },
+   {
+    "name": "update_purchase_invoice_payment_terms",
+    "title": "Set payment terms template",
+    "effect": "write"
+   },
+   {
+    "name": "update_purchase_invoice_terms_and_conditions",
+    "title": "Edit terms and conditions",
+    "effect": "write"
+   },
+   {
+    "name": "update_purchase_invoice_status",
+    "title": "Change invoice status fields",
+    "effect": "write"
+   },
+   {
+    "name": "update_purchase_invoice_accounting_details",
+    "title": "Set payable and accounting accounts",
+    "effect": "write"
+   },
+   {
+    "name": "update_purchase_invoice_subscription",
+    "title": "Set subscription period",
+    "effect": "write"
+   },
+   {
+    "name": "update_purchase_invoice_print_settings",
+    "title": "Adjust print settings",
+    "effect": "write"
+   },
+   {
+    "name": "update_purchase_invoice_hold_invoice",
+    "title": "Put invoice payment on hold",
+    "effect": "write"
+   },
+   {
+    "name": "update_purchase_invoice_additional_info",
+    "title": "Edit additional info",
+    "effect": "write"
+   },
+   {
+    "name": "update_purchase_invoice_items_rows",
+    "title": "Edit invoice line items",
+    "effect": "write"
+   },
+   {
+    "name": "update_purchase_invoice_purchase_taxes_and_charges",
+    "title": "Edit tax and charge lines",
+    "effect": "write"
+   },
+   {
+    "name": "update_purchase_invoice_tax_withholding_entries",
+    "title": "Edit withholding tax lines",
+    "effect": "write"
+   },
+   {
+    "name": "update_purchase_invoice_supplied_items",
+    "title": "Edit subcontracting supplied items",
+    "effect": "write"
+   },
+   {
+    "name": "update_purchase_invoice_advances",
+    "title": "Allocate advances to invoice",
+    "effect": "write"
+   },
+   {
+    "name": "update_purchase_invoice_payment_schedule",
+    "title": "Edit payment schedule",
+    "effect": "write"
+   },
+   {
+    "name": "submit_purchase_invoice",
+    "title": "Submit invoice to the ledger",
+    "effect": "irreversible"
+   },
+   {
+    "name": "cancel_purchase_invoice",
+    "title": "Cancel a submitted invoice",
+    "effect": "irreversible"
+   },
+   {
+    "name": "add_comment_to_purchase_invoice",
+    "title": "Comment on an invoice",
+    "effect": "write"
+   },
+   {
+    "name": "request_approval_purchase_invoice",
+    "title": "Send invoice for approval",
+    "effect": "write"
+   },
+   {
+    "name": "approve_purchase_invoice",
+    "title": "Approve invoice",
+    "effect": "write"
+   },
+   {
+    "name": "hold_purchase_invoice",
+    "title": "Hold invoice in workflow",
+    "effect": "write"
+   },
+   {
+    "name": "release_purchase_invoice",
+    "title": "Release held invoice",
+    "effect": "write"
+   },
+   {
+    "name": "post_purchase_invoice",
+    "title": "Post approved invoice",
+    "effect": "irreversible"
+   },
+   {
+    "name": "workflow_cancel_purchase_invoice",
+    "title": "Cancel invoice via workflow",
+    "effect": "irreversible"
+   },
+   {
+    "name": "list_suppliers",
+    "title": "Search suppliers",
+    "effect": "read"
+   },
+   {
+    "name": "get_supplier",
+    "title": "Open supplier record",
+    "effect": "read"
+   },
+   {
+    "name": "update_supplier_supplier_details",
+    "title": "Edit supplier basic details",
+    "effect": "write"
+   },
+   {
+    "name": "update_supplier_defaults",
+    "title": "Set supplier defaults",
+    "effect": "write"
+   },
+   {
+    "name": "update_supplier_primary_address_and_contact",
+    "title": "Set supplier primary address and contact",
+    "effect": "write"
+   },
+   {
+    "name": "update_supplier_internal_supplier_details",
+    "title": "Mark as internal supplier",
+    "effect": "write"
+   },
+   {
+    "name": "update_supplier_tax_identification",
+    "title": "Update supplier tax details",
+    "effect": "write"
+   },
+   {
+    "name": "update_supplier_settings",
+    "title": "Update supplier invoice settings",
+    "effect": "write"
+   },
+   {
+    "name": "update_supplier_block_supplier",
+    "title": "Block or unblock a supplier",
+    "effect": "write"
+   },
+   {
+    "name": "update_supplier_more_information",
+    "title": "Edit supplier additional info",
+    "effect": "write"
+   },
+   {
+    "name": "update_supplier_per_company_accounts",
+    "title": "Set supplier payable accounts per company",
+    "effect": "write"
+   },
+   {
+    "name": "update_supplier_allowed_to_transact_with",
+    "title": "Set companies allowed to buy from supplier",
+    "effect": "write"
+   },
+   {
+    "name": "update_supplier_supplier_portal_users",
+    "title": "Manage supplier portal users",
+    "effect": "write"
+   },
+   {
+    "name": "update_supplier_customer_numbers",
+    "title": "Record our customer numbers at supplier",
+    "effect": "write"
+   },
+   {
+    "name": "add_comment_to_supplier",
+    "title": "Comment on a supplier",
+    "effect": "write"
+   },
+   {
+    "name": "list_cost_centers",
+    "title": "Browse cost centers",
+    "effect": "read"
+   },
+   {
+    "name": "get_cost_center",
+    "title": "Open cost center",
+    "effect": "read"
+   },
+   {
+    "name": "update_cost_center_cost_center_details",
+    "title": "Edit cost center details",
+    "effect": "write"
+   },
+   {
+    "name": "add_comment_to_cost_center",
+    "title": "Comment on a cost center",
+    "effect": "write"
+   }
+  ],
+  "alignment": [
+   {
+    "canonical": "list_invoices",
+    "tools": [
+     "list_purchase_invoices"
+    ],
+    "note": "Pass the stage as a status filter (e.g. workflow_state or status) inside filters. 'training' has no equivalent in ERPNext."
+   },
+   {
+    "canonical": "get_invoice",
+    "tools": [
+     "get_purchase_invoice"
+    ],
+    "note": "Direct match. Shows lines, totals, coding and workflow status."
+   },
+   {
+    "canonical": "get_supplier_history",
+    "tools": [
+     "get_purchase_invoice",
+     "list_purchase_invoices"
+    ],
+    "note": "First open the invoice to read its supplier. Then list purchase invoices filtered by that supplier and compare bill_no and amounts to spot duplicates."
+   },
+   {
+    "canonical": "list_cost_centers",
+    "tools": [
+     "list_cost_centers"
+    ],
+    "note": "Direct match. Filters are optional, e.g. to exclude group or disabled cost centers."
+   },
+   {
+    "canonical": "set_invoice_coding",
+    "tools": [
+     "update_purchase_invoice_accounting_dimensions"
+    ],
+    "note": "Direct match. The extra 'project' field is optional. An asset number is required for capex cost centers."
+   },
+   {
+    "canonical": "hold_invoice",
+    "tools": [
+     "hold_purchase_invoice",
+     "add_comment_to_purchase_invoice"
+    ],
+    "note": "Two steps: run the workflow action Hold (action='Hold'), then record the reason as a comment. Alternative: update_purchase_invoice_hold_invoice sets the payment-hold flag directly, with the reason in hold_comment."
+   },
+   {
+    "canonical": "release_invoice",
+    "tools": [
+     "release_purchase_invoice"
+    ],
+    "note": "Workflow action, action='Release'."
+   },
+   {
+    "canonical": "request_approval",
+    "tools": [
+     "request_approval_purchase_invoice",
+     "add_comment_to_purchase_invoice"
+    ],
+    "note": "Workflow action 'Request Approval' moves the invoice to the approver queue. There is no approver or role field: the workflow decides the approver. Put the reason, and if needed the intended approver, in a comment."
+   },
+   {
+    "canonical": "approve_invoice",
+    "tools": [
+     "approve_purchase_invoice"
+    ],
+    "note": "Workflow action 'Approve', performed by the logged-in approver. The approver is not an argument. This is the approver's step: the apprentice should observe it, not perform it."
+   },
+   {
+    "canonical": "add_invoice_note",
+    "tools": [
+     "add_comment_to_purchase_invoice"
+    ],
+    "note": "Direct match. The comment is added to the invoice timeline."
+   },
+   {
+    "canonical": "post_invoice",
+    "tools": [
+     "post_purchase_invoice"
+    ],
+    "note": "Final workflow action 'Post', which submits the invoice to the ledger. submit_purchase_invoice is the non-workflow equivalent. Irreversible."
+   }
+  ],
+  "counts": {
+   "tools": 58,
+   "irreversible": 4,
+   "write": 48,
+   "read": 6
+  }
+ },
+ "page": {
+  "title": "Invoices over €5,000 gross are capex",
+  "triggerText": "When the invoice's gross amount (VAT included) is over €5,000",
+  "steps": [
+   "Open the invoice and check the gross amount, VAT included (not the net amount).",
+   "Look up the capex cost center (0400).",
+   "Change the coding from the opex cost center to capex 0400 and enter the asset number.",
+   "Post the invoice."
+  ],
+  "why": [
+   {
+    "text": "Company rule: anything over €5,000 must be booked as capex.",
+    "quote": "Yes. Anything above five tou-- 5,000 euros needs to be in CapEx.",
+    "by": "Sabine Weber",
+    "at": 1791102522644
+   },
+   {
+    "text": "The threshold applies to the gross amount, not the net amount.",
+    "quote": "It's under gross amount.",
+    "by": "Sabine Weber",
+    "at": 1791102636233
+   }
+  ],
+  "guardrails": [
+   {
+    "kind": "never",
+    "text": "Never post an invoice over €5,000 gross to an opex cost center. It must be coded to capex and have an asset number.",
+    "rule": {
+     "onTool": "post_invoice",
+     "when": [
+      {
+       "field": "invoice.amount",
+       "op": "gt",
+       "value": 5000
+      }
+     ],
+     "require": [
+      {
+       "field": "invoice.costCenterType",
+       "op": "eq",
+       "value": "capex"
+      },
+      {
+       "field": "invoice.hasAssetNumber",
+       "op": "eq",
+       "value": true
+      }
+     ]
+    },
+    "by": "Sabine Weber"
+   },
+   {
+    "kind": "require",
+    "text": "Apply the €5,000 threshold to the gross amount (VAT included), never to the net amount.",
+    "by": "Sabine Weber"
+   }
+  ],
+  "mistakes": [
+   {
+    "text": "Never post an invoice over €5,000 gross to an opex cost center. It must be coded to capex and have an asset number.",
+    "count": 5
+   }
+  ],
+  "moment": "moment.jpg"
+ },
+ "schmidt": {
+  "sabine": {
+   "text": "Because we are blacklisting Schmidt Logistic.",
+   "at": 1791104409747,
+   "by": "Sabine Weber"
+  },
+  "thomas": {
+   "text": "No, this case is not an exception. We took Schmidt Logistic out of blacklist.",
+   "at": 1791105528158,
+   "by": "Thomas Brandt"
+  },
+  "holdDecision": {
+   "engine": "jev",
+   "action": "ask_now",
+   "probabilities": {
+    "ignore": 0.02,
+    "queue_debrief": 0.31,
+    "ask_before_commit": 0.02,
+    "ask_now": 0.65
+   },
+   "confidence": 0.53,
+   "latencyMs": 315,
+   "deviation": "Step \"hold_invoice\" is not in the documented process",
+   "question": "Why did you put invoice 4470 on hold instead of proceeding straight to coding?",
+   "answer": "Hi. Because we are blacklisting Schmidt Logistic.",
+   "expert": "Sabine Weber"
+  },
+  "page": {
+   "title": "Invoices from blacklisted suppliers go on hold automatically",
+   "status": "confirmed",
+   "version": 5
+  },
+  "conflict": {
+   "kind": "changed",
+   "status": "resolved",
+   "summary": "Sabine Weber: Schmidt Logistik KG is blacklisted, so its invoices go on hold and are never posted or paid → Thomas Brandt: Schmidt Logistik KG has been removed from the blacklist and its invoices are now processed normally; the blacklist hold rule still applies to suppliers that are currently blacklisted.",
+   "older": {
+    "by": [
+     "Sabine Weber",
+     "Thomas Brandt"
+    ],
+    "itemIds": [
+     "I-mutlfn8lyifn5",
+     "I-mutlfn8lsv0ra",
+     "I-mutlfn8lb2m1c",
+     "G-mutlfn8lmwdqt",
+     "I-mutlfn8llbib4"
+    ],
+    "texts": [
+     "Supplier name is Schmidt Logistik KG (e.g. invoice 4470, €860, Freight Stuttgart → Ulm, cost center 4800)",
+     "The company is blacklisting this supplier, so its invoices must not go through the normal coding and posting flow.",
+     "The invoice is not paid. It stays open while the company pursues its own money claim against the supplier through legal channels.",
+     "Never post or pay an invoice from Schmidt Logistik KG. It must stay open while the legal claim is pursued.",
+     "The hold applies even to small, routine invoices for services already delivered, such as the €860 Stuttgart → Ulm freight. The invoice stays open and is not paid."
+    ]
+   },
+   "newer": {
+    "by": "Thomas Brandt",
+    "texts": [
+     "Thomas confirmed that the blacklist is still checked first, but Schmidt Logistik KG is no longer on it, so its invoice was not an exception to the rule.",
+     "Schmidt Logistik KG has been removed from the blacklist. Its invoices (for example, invoice 4475 for freight Ulm → Hamburg port, €1,240) are processed normally now. The old rule 'never post or pay Schmidt Logistik KG' no longer applies.",
+     "The supplier is currently on the company blacklist (check the latest company Slack announcements)",
+     "Every invoice from a supplier that is currently blacklisted must stay on hold, whatever the amount or category."
+    ]
+   },
+   "rulesOff": 2,
+   "resolution": "keep_new"
+  },
+  "superseded": [
+   {
+    "list": "recognize",
+    "text": "Supplier name is Schmidt Logistik KG (e.g. invoice 4470, €860, Freight Stuttgart → Ulm, cost center 4800)"
+   },
+   {
+    "list": "why",
+    "text": "The company is blacklisting this supplier, so its invoices must not go through the normal coding and posting flow."
+   },
+   {
+    "list": "why",
+    "text": "The invoice is not paid. It stays open while the company pursues its own money claim against the supplier through legal channels."
+   },
+   {
+    "list": "guardrails",
+    "text": "Never post or pay an invoice from Schmidt Logistik KG. It must stay open while the legal claim is pursued."
+   },
+   {
+    "list": "edgeCases",
+    "text": "The hold applies even to small, routine invoices for services already delivered, such as the €860 Stuttgart → Ulm freight. The invoice stays open and is not paid."
+   }
+  ],
+  "rules": [
+   {
+    "text": "Every invoice from a blacklisted supplier must be put on hold automatically, whatever the amount or category.",
+    "rule": {
+     "onTool": "post_invoice",
+     "when": [
+      {
+       "field": "supplier.blacklisted",
+       "op": "eq",
+       "value": true
+      }
+     ],
+     "forbid": true
+    }
+   },
+   {
+    "text": "Before releasing a held invoice from a blacklisted supplier, check the company Slack announcements.",
+    "rule": {
+     "onTool": "release_invoice",
+     "when": [
+      {
+       "field": "supplier.blacklisted",
+       "op": "eq",
+       "value": true
+      }
+     ],
+     "forbid": true
+    }
+   }
+  ],
+  "blacklist": [
+   {
+    "supplier": "Schmidt Logistik KG",
+    "reason": "Legal claim: the company is demanding money from the supplier through legal channels",
+    "addedAt": 1791104409747,
+    "addedBy": "Sabine Weber",
+    "removedAt": 1791105528158,
+    "removedBy": "Thomas Brandt"
+   }
+  ]
+ }
+}

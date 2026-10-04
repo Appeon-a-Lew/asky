@@ -1,9 +1,10 @@
 import { regenerateLessons } from "@/lib/knowledge/lessons";
 import { mutate, uid } from "@/lib/store";
 import type { Condition, GuardRule, Page } from "@/lib/types";
+import { withWorkspace } from "@/lib/workspace";
 
 // Expert edits from the hub: confirm / mark stale, add an edge case or note.
-export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }> }) {
+async function handlePATCH(req: Request, ctx: { params: Promise<{ id: string }> }) {
   const { id } = await ctx.params;
   const b = (await req.json()) as {
     status?: Page["status"]; addEdgeCase?: string; by?: string; resolveQuestion?: string;
@@ -44,3 +45,5 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
   });
   return page ? Response.json(page) : Response.json({ error: "not found" }, { status: 404 });
 }
+
+export const PATCH = withWorkspace(handlePATCH);

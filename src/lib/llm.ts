@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { chargeLLM } from "./visitors";
 
 // Thin Claude wrapper. Structured output via forced tool use so callers get
 // typed JSON back. Every caller must have a deterministic fallback for when
@@ -47,6 +48,7 @@ export async function llmJSON<T>(opts: {
   maxTokens?: number;
   images?: { mediaType: "image/jpeg" | "image/png"; data: string }[]; // base64
 }): Promise<T> {
+  chargeLLM(); // audience workspaces have a budget; over it, callers fall back to heuristics
   const name = opts.name ?? "respond";
   const content: Anthropic.ContentBlockParam[] = [];
   for (const img of opts.images ?? []) {
@@ -75,6 +77,7 @@ export async function llmJSON<T>(opts: {
 }
 
 export async function llmText(opts: { system: string; prompt: string; model?: keyof typeof MODELS; maxTokens?: number }): Promise<string> {
+  chargeLLM();
   const smart = (opts.model ?? "fast") === "smart";
   const res = await anthropic().messages.create({
     model: MODELS[opts.model ?? "fast"],

@@ -1,14 +1,15 @@
 import { addToBlacklist, decideSuggestion, removeFromBlacklist } from "@/lib/blacklist";
 import { db } from "@/lib/store";
+import { withWorkspace } from "@/lib/workspace";
 
 // GET → the list (current and past); GET ?suggestions → what asky heard.
 // POST {action: "add"|"remove", supplierName, reason, by, source?, at?, sessionId?} · {action: "apply"|"dismiss", suggestionId, by?}.
-export async function GET(req: Request) {
+async function handleGET(req: Request) {
   if (new URL(req.url).searchParams.has("suggestions")) return Response.json(db().blacklistSuggestions ?? []);
   return Response.json(db().blacklist ?? []);
 }
 
-export async function POST(req: Request) {
+async function handlePOST(req: Request) {
   const b = (await req.json()) as { action: "add" | "remove" | "apply" | "dismiss"; suggestionId?: string; supplierName?: string; reason?: string; by?: string; source?: string; at?: number; sessionId?: string };
   // a suggestion asky heard in a session: a person applies or dismisses it
   if (b.action === "apply" || b.action === "dismiss") {
@@ -21,3 +22,6 @@ export async function POST(req: Request) {
   const r = removeFromBlacklist({ supplierName: b.supplierName, reason: b.reason, by, at: b.at, sessionId: b.sessionId });
   return r ? Response.json(r) : Response.json({ error: `${b.supplierName} is not on the blacklist` }, { status: 404 });
 }
+
+export const GET = withWorkspace(handleGET);
+export const POST = withWorkspace(handlePOST);

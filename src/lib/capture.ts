@@ -8,7 +8,7 @@ import { scoreRules } from "./engine/rules";
 import { phraseQuestion } from "./engine/question";
 import { matchRequest } from "./mcp/catalog";
 import { redact } from "./redact";
-import { db, FRAMES_DIR, mutate, uid } from "./store";
+import { db, framesDir, mutate, uid } from "./store";
 import type { AppEvent, DB, Question, Session, SessionMode, Speaker, ToolDef, Utterance } from "./types";
 
 // ---------------------------------------------------------------------------
@@ -333,7 +333,7 @@ export function setOffRecord(sessionId: string, on: boolean) {
       // purge everything captured inside the window except bare tool steps
       s.transcript = s.transcript.filter((u) => u.ts < open.from || u.ts > open.to! || u.speaker === "agent");
       const drop = s.frames.filter((f) => f.ts >= open.from && f.ts <= open.to!);
-      for (const f of drop) fs.rmSync(path.join(FRAMES_DIR, f.file), { force: true });
+      for (const f of drop) fs.rmSync(path.join(framesDir(), f.file), { force: true });
       s.frames = s.frames.filter((f) => !drop.includes(f));
       for (const e of s.events) if (e.ts >= open.from && e.ts <= open.to!) e.frameId = undefined;
     }
@@ -348,8 +348,8 @@ export function saveFrame(sessionId: string, dataUrl: string, ts: number, captio
   if (!s || s.offRecord.some((o) => !o.to)) return null;
   const id = uid("F-");
   const file = `${sessionId}/${id}.${m[1] === "png" ? "png" : "jpg"}`;
-  fs.mkdirSync(path.join(FRAMES_DIR, sessionId), { recursive: true });
-  fs.writeFileSync(path.join(FRAMES_DIR, file), Buffer.from(m[2], "base64"));
+  fs.mkdirSync(path.join(framesDir(), sessionId), { recursive: true });
+  fs.writeFileSync(path.join(framesDir(), file), Buffer.from(m[2], "base64"));
   return inSession(sessionId, (ss) => {
     const f = { id, sessionId, ts, file, caption };
     ss.frames.push(f);

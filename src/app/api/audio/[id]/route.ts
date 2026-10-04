@@ -1,13 +1,14 @@
 import fs from "node:fs";
 import path from "node:path";
-import { DATA_DIR, db } from "@/lib/store";
+import { dataDir, db } from "@/lib/store";
+import { withWorkspace } from "@/lib/workspace";
 
 // The recording behind an imported interview, so a quote can be replayed in the expert's own voice.
-export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }) {
+async function handleGET(req: Request, ctx: { params: Promise<{ id: string }> }) {
   const { id } = await ctx.params;
   const rec = db().sessions.find((s) => s.id === id)?.recording;
   if (!rec) return new Response("not found", { status: 404 });
-  const file = path.join(DATA_DIR, "audio", path.basename(rec.file));
+  const file = path.join(dataDir(), "audio", path.basename(rec.file));
   if (!fs.existsSync(file)) return new Response("not found", { status: 404 });
   const buf = fs.readFileSync(file);
   // range requests let the browser seek to the quote
@@ -19,3 +20,5 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
   }
   return new Response(buf, { headers: { "content-type": rec.mime, "accept-ranges": "bytes", "content-length": String(buf.length) } });
 }
+
+export const GET = withWorkspace(handleGET);

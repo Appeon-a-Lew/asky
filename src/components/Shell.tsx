@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { Icon, type IconName } from "./icons";
+import { useWorkspaceInfo } from "./useWorkspaceInfo";
 
 type Item = { href: string; label: string; icon: IconName; step?: string; exact?: boolean };
 
@@ -120,12 +121,14 @@ export default function Shell({ children, full }: { children: React.ReactNode; f
   const toggle = () => writePref(collapsed ? "open" : "closed");
   const on = (i: Item) => (i.exact ? path === i.href : path.startsWith(i.href));
   const inHub = path.startsWith("/hub");
+  const ws = useWorkspaceInfo();
+  const visitor = !!ws?.visitor;
 
   return (
     <div className="flex h-screen bg-background">
       <aside className={`flex shrink-0 flex-col bg-stone-950 text-stone-300 transition-[width] duration-200 ${collapsed ? "w-16" : "w-64"}`}>
         <div className={`flex h-14 items-center ${collapsed ? "justify-center" : "gap-2.5 px-4"}`}>
-          <Link href="/" className="flex items-center gap-2.5" title="asky home">
+          <Link href="/home" className="flex items-center gap-2.5" title="asky home">
             <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-amber-300 to-amber-500 text-[15px] font-bold text-stone-950 shadow-sm shadow-amber-500/20">a</span>
             {!collapsed && (
               <span className="leading-tight">
@@ -138,7 +141,8 @@ export default function Shell({ children, full }: { children: React.ReactNode; f
 
         <nav className={`flex-1 space-y-6 overflow-y-auto py-4 ${collapsed ? "px-2" : "px-3"}`}>
           <div className="space-y-0.5">
-            <NavLink item={{ href: "/", label: "Home", icon: "home", exact: true }} active={path === "/"} collapsed={collapsed} />
+            {visitor && <NavLink item={{ href: "/start", label: "Start here", icon: "arrow", exact: true }} active={path === "/start"} collapsed={collapsed} />}
+            <NavLink item={{ href: "/home", label: "Home", icon: "home", exact: true }} active={path === "/home"} collapsed={collapsed} />
           </div>
           <div className="space-y-0.5">
             {!collapsed && <div className="mb-2 px-2.5 text-[11px] font-medium uppercase tracking-wider text-stone-600">Workflow</div>}
@@ -157,7 +161,8 @@ export default function Shell({ children, full }: { children: React.ReactNode; f
             {!collapsed && <div className="mb-2 px-2.5 text-[11px] font-medium uppercase tracking-wider text-stone-600">Target app</div>}
             {[
               { href: "/app", label: "Ledgerline AP", hint: "mock" },
-              { href: "/erpnext", label: "ERPNext", hint: "real" },
+              // the real ERP is one shared system: presenter only (the landing page shows it at work)
+              ...(visitor ? [] : [{ href: "/erpnext", label: "ERPNext", hint: "real" }]),
             ].map((a) => (
               <a key={a.label} href={a.href} target="_blank" rel="noreferrer" title={a.label} className={`group flex items-center rounded-lg text-stone-400 transition-colors hover:bg-white/5 hover:text-stone-100 ${collapsed ? "mx-auto h-9 w-9 justify-center" : "gap-3 px-2.5 py-2 text-sm"}`}>
                 <Icon name="app" className="h-[18px] w-[18px] text-stone-500 group-hover:text-stone-300" />
@@ -168,6 +173,7 @@ export default function Shell({ children, full }: { children: React.ReactNode; f
         </nav>
 
         <div className={`space-y-2 border-t border-white/5 py-3 ${collapsed ? "px-2" : "px-3"}`}>
+          {visitor && ws && !collapsed && <VisitorBadge info={ws} />}
           <EngineStatus collapsed={collapsed} />
           <button onClick={toggle} title={collapsed ? "Expand sidebar" : "Collapse sidebar"} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"} className={`flex items-center rounded-lg text-xs text-stone-500 transition-colors hover:bg-white/5 hover:text-stone-200 ${collapsed ? "mx-auto h-9 w-9 justify-center" : "w-full gap-3 px-2.5 py-2"}`}>
             <Icon name="panel" className="h-4 w-4" />
@@ -177,6 +183,27 @@ export default function Shell({ children, full }: { children: React.ReactNode; f
       </aside>
 
       <main className={`min-w-0 flex-1 ${full ? "overflow-hidden" : "overflow-y-auto"}`}>{children}</main>
+    </div>
+  );
+}
+
+/** Audience workspace: private, temporary, budgeted — and how to leave. */
+function VisitorBadge({ info }: { info: import("./useWorkspaceInfo").WorkspaceInfo }) {
+  const until = info.expiresAt ? new Date(info.expiresAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
+  const left = info.limits && info.usage ? Math.max(0, info.limits.llm - info.usage.llm) : null;
+  return (
+    <div className="rounded-xl bg-amber-400/10 p-2.5 text-[11px] leading-relaxed text-amber-100 ring-1 ring-amber-400/20">
+      <div className="font-semibold text-amber-300">Your private demo</div>
+      <div className="text-amber-100/70">Only you see it · deleted at {until}{left !== null ? ` · ${left} AI calls left` : ""}</div>
+      <button
+        onClick={async () => {
+          await fetch("/api/workspace", { method: "DELETE" });
+          window.location.assign(new URL("/", window.location.origin).href); // full reload: the workspace is gone
+        }}
+        className="mt-1 text-amber-300 underline underline-offset-2"
+      >
+        Leave
+      </button>
     </div>
   );
 }

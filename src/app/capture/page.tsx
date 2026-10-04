@@ -9,12 +9,13 @@ import Shell from "@/components/Shell";
 import { useInterrupts } from "@/components/useInterrupts";
 import { type FrameResult, useScreenShare } from "@/components/useScreenShare";
 import { useVoice, VoiceProvider } from "@/components/voice/VoiceProvider";
+import { useWorkspaceInfo } from "@/components/useWorkspaceInfo";
 import { api, j, type Recognized } from "@/lib/client";
 import type { Question } from "@/lib/types";
 
 type Phase = "setup" | "live" | "debrief" | "teachback" | "done";
 type Target = "ledgerline" | "erpnext";
-type ErpStatus = { url: string; up: boolean; catalog: { tools: number; aligned: number; of: number } | null };
+type ErpStatus = { url: string | null; up: boolean; visitor?: boolean; catalog: { tools: number; aligned: number; of: number } | null };
 type FeedItem = { id: string; ts: number; text: string; kind: string; tag?: string };
 
 const EXPERTS = [
@@ -68,6 +69,7 @@ function Capture() {
   const lastAppEvent = useRef(0);
   const queueRef = useRef<Promise<unknown>>(Promise.resolve());
   const ended = useRef(false); // "Finish": stop asking, never commit
+  const ws = useWorkspaceInfo();
 
   const it = useInterrupts({
     sessionId: sid, voice, speaker: "expert", pauseMs: 1800, budgetPer10Min: 5, enabled: phase === "live",
@@ -286,7 +288,7 @@ function Capture() {
             {active && <div className="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-950">“{active.text}”</div>}
             {phase === "live" && (
               <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                <button onClick={() => (share.sharing ? share.stop() : share.start().catch((e) => setStatus(e.message)))} className="rounded-md border border-stone-300 px-2 py-1">{share.sharing ? "■ Stop screen share" : "● Share screen"}</button>
+                {!ws?.visitor && <button onClick={() => (share.sharing ? share.stop() : share.start().catch((e) => setStatus(e.message)))} className="rounded-md border border-stone-300 px-2 py-1">{share.sharing ? "■ Stop screen share" : "● Share screen"}</button>}
                 <button onClick={async () => { const on = !it.state.offRecord; if (sid) await api.offRecord(sid, on); voice.typeAnswer(on ? "off the record" : "back on the record"); }} className="rounded-md border border-stone-300 px-2 py-1">{it.state.offRecord ? "Back on the record" : "Off the record"}</button>
                 <label className="flex items-center gap-1 rounded-md border border-stone-300 px-2 py-1"><input type="checkbox" checked={blur} onChange={(e) => { setBlur(e.target.checked); frame.current?.setPrivacy(e.target.checked); }} /> blur personal data</label>
                 {active && <button onClick={it.skipActive} className="rounded-md border border-stone-300 px-2 py-1">skip question</button>}
@@ -454,7 +456,7 @@ function SetupCard({ person, setPerson, onStart, known, fresh, setFresh, target,
         <div className="grid grid-cols-2 gap-2">
           <TargetOption on={target === "ledgerline"} onClick={() => setTarget("ledgerline")} title="Ledgerline AP" tag="instrumented">Mock ERP inside asky. Every click and API call is reported exactly.</TargetOption>
           <TargetOption on={target === "erpnext"} onClick={() => setTarget("erpnext")} title="ERPNext" tag="vision only" disabled={!erp?.up}>
-            {erp?.up ? <>A real ERP. asky only sees your shared screen{erp.catalog ? <> · MCP: {erp.catalog.aligned}/{erp.catalog.of} steps found</> : null}.</> : <>Not reachable at {erp?.url ?? "localhost:8080"}.</>}
+            {erp?.up ? <>A real ERP. asky only sees your shared screen{erp.catalog ? <> · MCP: {erp.catalog.aligned}/{erp.catalog.of} steps found</> : null}.</> : erp?.visitor ? <>Presenter only — watch it at work on the <Link href="/" className="underline">home page</Link>.</> : <>Not reachable at {erp?.url ?? "localhost:8080"}.</>}
           </TargetOption>
         </div>
         <label className="block text-sm">Expert

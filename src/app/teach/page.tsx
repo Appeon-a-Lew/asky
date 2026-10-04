@@ -42,7 +42,7 @@ function Teach() {
   const [thinking, setThinking] = useState(false);
   const [target, setTarget] = useState<Target>("ledgerline");
   const picked = useRef(false);
-  const [erpUp, setErpUp] = useState<{ up: boolean; url: string } | null>(null);
+  const [erpUp, setErpUp] = useState<{ up: boolean; url: string | null; visitor?: boolean } | null>(null);
   const [screen, setScreen] = useState<FrameResult["screen"]>(null);
   const frame = useRef<AppFrameHandle>(null);
   const asked = useRef(new Set<string>());
@@ -63,7 +63,7 @@ function Teach() {
   }, [voice]);
 
   useEffect(() => {
-    j<{ up: boolean; url: string }>("GET", "/api/erpnext").then((e) => { setErpUp(e); if (e.up && !picked.current) setTarget("erpnext"); }).catch(() => {});
+    j<{ up: boolean; url: string | null; visitor?: boolean }>("GET", "/api/erpnext").then((e) => { setErpUp(e); if (e.up && !picked.current) setTarget("erpnext"); }).catch(() => {});
   }, []);
 
   async function start() {
@@ -203,7 +203,7 @@ function Teach() {
                   {(["ledgerline", "erpnext"] as const).map((t) => (
                     <button key={t} type="button" disabled={t === "erpnext" && !erpUp?.up} onClick={() => { picked.current = true; setTarget(t); }} className={`rounded-xl border p-3 text-left transition disabled:opacity-50 ${target === t ? "border-stone-900 bg-white ring-1 ring-stone-900" : "border-stone-200 bg-white/70 hover:border-stone-400"}`}>
                       <div className="text-sm font-semibold text-stone-900">{t === "erpnext" ? "ERPNext" : "Ledgerline AP"}</div>
-                      <div className="text-stone-600">{t === "erpnext" ? (erpUp?.up ? "Real ERP — share your ERPNext tab; open invoices 5101–5104." : "not reachable") : "Mock ERP, instrumented."}</div>
+                      <div className="text-stone-600">{t === "erpnext" ? (erpUp?.up ? "Real ERP — share your ERPNext tab; open invoices 5101–5104." : erpUp?.visitor ? "Presenter only" : "not reachable") : "Mock ERP, instrumented."}</div>
                     </button>
                   ))}
                 </div>

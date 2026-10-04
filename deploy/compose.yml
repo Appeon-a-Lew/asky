@@ -2,8 +2,8 @@
 # (deploy/erpnext-compose.yml, /opt/erpnext); all three meet on the external "web" network.
 #
 #   .env       ASKY_TAG, ASKY_HOST, ERP_HOST       (compose variables; ASKY_TAG is set by deploy.sh)
-#   asky.env   API keys + ERPNEXT_USER/PASSWORD    (container environment, never in git)
-#   caddy/auth basic_auth for asky                  (generated on the server)
+#   asky.env   API keys, ERPNEXT_USER/PASSWORD, ASKY_SECRET, ASKY_EVENT_CODE,
+#              ASKY_PRESENTER_PASSWORD             (container environment, never in git)
 name: asky
 
 services:
@@ -31,7 +31,6 @@ services:
       ERP_HOST: ${ERP_HOST}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./caddy/auth:/etc/caddy/auth:ro
       - caddy-data:/data
       - caddy-config:/config
     networks: [web]

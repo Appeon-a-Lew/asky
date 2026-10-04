@@ -1,10 +1,11 @@
 import { describeCondition } from "@/lib/engine/context";
 import { db } from "@/lib/store";
+import { withWorkspace } from "@/lib/workspace";
 
 // Stretch goal "agent-ready guardrails": the knowledge as instructions an agent
 // can load. Pair it with the asky MCP server (`pnpm mcp`), whose
 // check_guardrail tool enforces the same rules before every write.
-export async function GET(req: Request) {
+async function handleGET(req: Request) {
   const d = db();
   const fmt = new URL(req.url).searchParams.get("format") ?? "md";
   const tools = d.tools?.tools ?? [];
@@ -33,3 +34,5 @@ export async function GET(req: Request) {
   ].join("\n");
   return new Response(md, { headers: { "content-type": "text/markdown; charset=utf-8", "content-disposition": 'inline; filename="asky-agent-skill.md"' } });
 }
+
+export const GET = withWorkspace(handleGET);

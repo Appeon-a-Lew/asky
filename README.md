@@ -125,6 +125,17 @@ asky and ERPNext run on one VPS behind Caddy (HTTPS is required for screen shari
 
 Every push to `main` (or a manual run of **Build and deploy**) builds the image, pushes `sha-<commit>` and `latest` to GitHub Container Registry, and deploys over SSH: the deploy key is a forced command that pulls the tag with the job's short-lived `GITHUB_TOKEN` and restarts asky. Set the repository secret `DEPLOY_SSH_KEY` to the deploy key's private key; without it the image is pushed but not deployed. Roll back by re-running an older workflow run, or on the server: `sed -i 's/^ASKY_TAG=.*/ASKY_TAG=sha-abc1234/' /opt/asky/.env && docker compose -f /opt/asky/compose.yml up -d asky`.
 
+## Public demo: landing page + audience workspaces
+
+`/` is a public landing page built from real runs (`pnpm landing [--vision]` writes `public/landing/`: the ERPNext e2e frames with asky's own readings, Jev's logged decisions, the generated harness, a confirmed page, the Schmidt story).
+
+With `ASKY_SECRET` set, the app is gated (`src/proxy.ts`): a signed `asky_ws` cookie decides the workspace, and every route handler runs inside it (`withWorkspace`, `src/lib/workspace.ts`).
+
+- **Audience** — the event code (`ASKY_EVENT_CODE`) creates a private workspace (`data/workspaces/v-…`) from a clean template: Ledgerline only, guided at `/start`, deleted after `ASKY_WORKSPACE_TTL_HOURS`. Budgets per workspace (AI calls, TTS characters; over them asky falls back to heuristics and the browser voice), a few shared live-voice seats, a global cap. No screen frames, audio uploads, ERPNext or harness writes.
+- **Presenter** — `/presenter` with `ASKY_PRESENTER_PASSWORD` → the main workspace (ERPNext, the curated knowledge).
+- Fail-closed: inside the gated server a request without a workspace never reaches the main data. Without `ASKY_SECRET` (local development, scripts) everything is the main workspace, as before.
+- `ASKY_URL=… ASKY_EVENT_CODE=… pnpm e2e` runs the full UI test as an audience member.
+
 ## Demo script (≈ 8 min)
 
 1. **Interview** → *Import sample* — German recording → transcript → 6 new pages, 3 updated (stretch goal: explained in German, taught in English).

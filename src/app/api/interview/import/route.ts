@@ -1,14 +1,16 @@
 import fs from "node:fs";
 import path from "node:path";
 import { importInterview } from "@/lib/knowledge/interview";
+import { isVisitor, withWorkspace } from "@/lib/workspace";
 
 export const maxDuration = 300;
 
 // A recorded interview → ElevenLabs Scribe → knowledge pages.
 // multipart: file + personId · or JSON { sample: true, personId } for the bundled demo recording.
-export async function POST(req: Request) {
+async function handlePOST(req: Request) {
   try {
     if ((req.headers.get("content-type") ?? "").includes("multipart/form-data")) {
+      if (isVisitor()) return Response.json({ error: "In the demo, use the sample recording" }, { status: 403 });
       const form = await req.formData();
       const file = form.get("file");
       if (!(file instanceof File)) return Response.json({ error: "file missing" }, { status: 400 });
@@ -18,8 +20,10 @@ export async function POST(req: Request) {
     if (!b.sample) return Response.json({ error: "send a file or { sample: true }" }, { status: 400 });
     const f = path.join(process.cwd(), "public", "demo", "interview-sabine-de.mp3");
     if (!fs.existsSync(f)) return Response.json({ error: "sample recording missing — run pnpm make:interview" }, { status: 404 });
-    return Response.json(await importInterview(b.personId ?? "sabine", fs.readFileSync(f), "interview-sabine-de.mp3", "audio/mpeg"));
+    return Response.json(await importInterview(b.personId ?? "sabine", fs.readFileSync(f), "interview-sabine-de.mp3", "audio/mpeg", { cacheTranscript: true }));
   } catch (e) {
     return Response.json({ error: (e as Error).message }, { status: 502 });
   }
 }
+
+export const POST = withWorkspace(handlePOST);

@@ -3,44 +3,49 @@ import fs from "node:fs";
 import path from "node:path";
 import { seedDB } from "./seed";
 import type { DB } from "./types";
+import { currentWorkspace, MAIN } from "./workspace";
 
-// Tiny JSON-file store. One process (Next server) owns writes; the MCP server
-// and harness talk to it over HTTP. Good enough for a hackathon, trivially
-// swappable for Postgres later.
+// Tiny JSON-file store, one file per workspace. One process (Next server) owns
+// writes; the MCP server and harness talk to it over HTTP. "main" lives in the
+// data dir itself (as before); audience workspaces in data/workspaces/<id>/.
 
-export const DATA_DIR = process.env.ASKY_DATA_DIR || path.join(process.cwd(), "data");
-const DB_FILE = path.join(DATA_DIR, "db.json");
-export const FRAMES_DIR = path.join(DATA_DIR, "frames");
+export const DATA_ROOT = process.env.ASKY_DATA_DIR || path.join(process.cwd(), "data");
 
-const g = globalThis as unknown as { __askyDB?: DB; __askyMtime?: number };
-
-function ensureDirs() {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-  fs.mkdirSync(FRAMES_DIR, { recursive: true });
+/** The current workspace's data directory (db.json, frames/, audio/). */
+export function dataDir(ws = currentWorkspace()) {
+  return ws === MAIN ? DATA_ROOT : path.join(DATA_ROOT, "workspaces", ws);
 }
+export const framesDir = (ws = currentWorkspace()) => path.join(dataDir(ws), "frames");
+
+const g = globalThis as unknown as { __askyDBs?: Map<string, { db: DB; mtime: number }> };
+const cache = (g.__askyDBs ??= new Map());
 
 export function db(): DB {
-  ensureDirs();
-  const mtime = fs.existsSync(DB_FILE) ? fs.statSync(DB_FILE).mtimeMs : 0;
+  const ws = currentWorkspace();
+  const file = path.join(dataDir(ws), "db.json");
+  const mtime = fs.existsSync(file) ? fs.statSync(file).mtimeMs : 0;
+  const hit = cache.get(ws);
   // Reload when the file was changed outside this process (e.g. seed script).
-  if (!g.__askyDB || (mtime && mtime !== g.__askyMtime)) {
-    if (mtime) {
-      g.__askyDB = JSON.parse(fs.readFileSync(DB_FILE, "utf8")) as DB;
-      g.__askyMtime = mtime;
-    } else {
-      g.__askyDB = seedDB();
-      persist();
-    }
+  if (hit && (!mtime || mtime === hit.mtime)) return hit.db;
+  if (mtime) {
+    cache.set(ws, { db: JSON.parse(fs.readFileSync(file, "utf8")) as DB, mtime });
+  } else {
+    // an audience workspace is created explicitly (lib/visitors); once its folder is gone it has expired
+    if (ws !== MAIN) throw new Error("This demo workspace has expired — start a new one on the home page");
+    cache.set(ws, { db: seedDB(), mtime: 0 });
+    persist(ws);
   }
-  return g.__askyDB!;
+  return cache.get(ws)!.db;
 }
 
-function persist() {
-  ensureDirs();
-  const tmp = `${DB_FILE}.${process.pid}.tmp`;
-  fs.writeFileSync(tmp, JSON.stringify(g.__askyDB, null, 1));
-  fs.renameSync(tmp, DB_FILE);
-  g.__askyMtime = fs.statSync(DB_FILE).mtimeMs;
+function persist(ws = currentWorkspace()) {
+  const dir = dataDir(ws);
+  fs.mkdirSync(path.join(dir, "frames"), { recursive: true });
+  const file = path.join(dir, "db.json");
+  const tmp = `${file}.${process.pid}.tmp`;
+  fs.writeFileSync(tmp, JSON.stringify(cache.get(ws)!.db, null, 1));
+  fs.renameSync(tmp, file);
+  cache.get(ws)!.mtime = fs.statSync(file).mtimeMs;
 }
 
 /** Apply a mutation and write through. Returns whatever the mutator returns. */
@@ -52,10 +57,20 @@ export function mutate<T>(fn: (d: DB) => T): T {
 }
 
 export function resetDB(next?: DB) {
-  g.__askyDB = next ?? seedDB();
-  persist();
-  return g.__askyDB;
+  const ws = currentWorkspace();
+  cache.set(ws, { db: next ?? seedDB(), mtime: 0 });
+  persist(ws);
+  return cache.get(ws)!.db;
 }
+
+/** Write a workspace's first db (audience workspaces). */
+export function createWorkspaceDB(ws: string, first: DB) {
+  cache.set(ws, { db: first, mtime: 0 });
+  persist(ws);
+}
+
+/** Forget a deleted workspace. */
+export const dropFromCache = (ws: string) => cache.delete(ws);
 
 export function uid(prefix = "") {
   return `${prefix}${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;

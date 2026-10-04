@@ -1,7 +1,8 @@
 import { updateQuestion } from "@/lib/capture";
 import type { Question } from "@/lib/types";
+import { withWorkspace } from "@/lib/workspace";
 
-export async function PATCH(req: Request, ctx: { params: Promise<{ id: string; qid: string }> }) {
+async function handlePATCH(req: Request, ctx: { params: Promise<{ id: string; qid: string }> }) {
   const { id, qid } = await ctx.params;
   const patch = (await req.json()) as Partial<Question>;
   try {
@@ -10,3 +11,5 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string; q
     return Response.json({ error: (e as Error).message }, { status: 404 });
   }
 }
+
+export const PATCH = withWorkspace(handlePATCH);

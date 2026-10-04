@@ -542,6 +542,9 @@ export interface DB {
   /** list changes asky heard someone state — applied only when a person agrees */
   blacklistSuggestions?: BlacklistSuggestion[];
   settings: Settings;
+  /** audience workspaces only: lifetime and what it may still spend */
+  workspace?: { visitor: true; createdAt: number; expiresAt: number };
+  usage?: { llm: number; ttsChars: number };
 }
 
 export interface BlacklistSuggestion {

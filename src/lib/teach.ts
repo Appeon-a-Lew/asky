@@ -97,7 +97,7 @@ export async function answerLearner(question: string, caseId?: string): Promise<
       const q = new Set(words(question));
       const scored = all.map((p) => ({ p, s: keyTerms(p).filter((t) => q.has(t)).length + (relevant.includes(p) ? 0.5 : 0) })).sort((a, b) => b.s - a.s);
       const best = scored[0];
-      if (!best || best.s < 0.5) return `Start in the inbox: ${steps.slice(0, 4).join(", then ")}. For anything special, check the knowledge pages or ask Sabine.`;
+      if (!best || best.s < 0.5) return steps.length ? `Start in the inbox: ${steps.slice(0, 4).join(", then ")}. For anything special, check the knowledge pages or ask Sabine.` : "I don't know that one yet — nothing on the knowledge pages covers it. Ask Sabine.";
       const p = best.p;
       return `${p.title}. ${p.steps.map((s) => s.text).join(", then ")}.${p.why[0] ? ` As Sabine put it: "${p.why[0].text}"` : ""}`;
     },

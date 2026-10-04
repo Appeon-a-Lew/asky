@@ -1,9 +1,10 @@
 import "server-only";
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { llmJSON, withFallback } from "../llm";
 import { redact } from "../redact";
-import { DATA_DIR, db, mutate, uid } from "../store";
+import { DATA_ROOT, dataDir, db, mutate, uid } from "../store";
 import { transcribe } from "../voice/stt";
 import type { DB, Question, QuestionKind } from "../types";
 import { commitDraft } from "./commit";
@@ -80,8 +81,8 @@ export async function finishInterview(sessionId: string) {
  * interviewer, everyone else is the expert. Everything the expert says is
  * tagged "stated" and keeps its timestamp in the recording.
  */
-export async function importInterview(personId: string, audio: Buffer, filename: string, mime: string) {
-  const stt = await transcribe(new Blob([new Uint8Array(audio)], { type: mime }), filename);
+export async function importInterview(personId: string, audio: Buffer, filename: string, mime: string, opts: { cacheTranscript?: boolean } = {}) {
+  const stt = opts.cacheTranscript ? await cachedTranscript(audio, filename, mime) : await transcribe(new Blob([new Uint8Array(audio)], { type: mime }), filename);
   if (!stt.utterances.length) throw new Error("no speech found in the recording");
 
   // interviewer = the speaker whose turns are mostly questions
@@ -98,7 +99,7 @@ export async function importInterview(personId: string, audio: Buffer, filename:
 
   const { session } = await startInterview("interview_free", personId);
   const ext = (filename.match(/\.(\w+)$/)?.[1] ?? "mp3").toLowerCase();
-  const dir = path.join(DATA_DIR, "audio");
+  const dir = path.join(dataDir(), "audio");
   fs.mkdirSync(dir, { recursive: true });
   const file = `${session.id}.${ext}`;
   fs.writeFileSync(path.join(dir, file), audio);
@@ -116,4 +117,14 @@ export async function importInterview(personId: string, audio: Buffer, filename:
   const result = await finishInterview(session.id);
   const s = db().sessions.find((x) => x.id === session.id)!;
   return { sessionId: s.id, title: s.title, language: stt.language, durationSec, stt: s.recording!.stt, speakers: speakers.length, transcript: s.transcript.map((u) => ({ speaker: u.speaker, text: u.text, start: u.audio?.start })), ...result };
+}
+
+/** The bundled sample recording is transcribed once and shared by every workspace (never used for uploads). */
+async function cachedTranscript(audio: Buffer, filename: string, mime: string) {
+  const file = path.join(DATA_ROOT, "cache", `stt-${crypto.createHash("sha256").update(audio).digest("hex").slice(0, 24)}.json`);
+  if (fs.existsSync(file)) return JSON.parse(fs.readFileSync(file, "utf8")) as Awaited<ReturnType<typeof transcribe>>;
+  const stt = await transcribe(new Blob([new Uint8Array(audio)], { type: mime }), filename);
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, JSON.stringify(stt));
+  return stt;
 }

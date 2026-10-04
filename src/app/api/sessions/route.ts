@@ -2,8 +2,9 @@ import { createSession } from "@/lib/capture";
 import { syncErpnext } from "@/lib/erpnext/mirror";
 import { db } from "@/lib/store";
 import type { SessionMode } from "@/lib/types";
+import { withWorkspace } from "@/lib/workspace";
 
-export async function GET() {
+async function handleGET() {
   return Response.json(
     db().sessions.map((s) => ({
       id: s.id, mode: s.mode, title: s.title, personId: s.personId, startedAt: s.startedAt, endedAt: s.endedAt, phase: s.phase,
@@ -12,7 +13,7 @@ export async function GET() {
   );
 }
 
-export async function POST(req: Request) {
+async function handlePOST(req: Request) {
   const b = (await req.json()) as { mode: SessionMode; personId: string; title?: string; trainingCaseIds?: string[]; target?: "ledgerline" | "erpnext" };
   if (b.target === "erpnext") {
     // the real app is the system of record: start from its current state
@@ -24,3 +25,6 @@ export async function POST(req: Request) {
   }
   return Response.json(createSession(b.mode, b.personId, b.title, b.trainingCaseIds, b.target));
 }
+
+export const GET = withWorkspace(handleGET);
+export const POST = withWorkspace(handlePOST);

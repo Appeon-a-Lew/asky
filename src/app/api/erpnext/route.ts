@@ -2,9 +2,12 @@ import { ERPNEXT_PUBLIC_URL, ERPNEXT_URL } from "@/lib/erpnext/client";
 import { syncErpnext } from "@/lib/erpnext/mirror";
 import { seedErpnext } from "@/lib/erpnext/seed";
 import { db } from "@/lib/store";
+import { isVisitor, withWorkspace } from "@/lib/workspace";
 
 // The real-app showcase: is ERPNext reachable, what does the mirror hold, replay the demo.
-export async function GET() {
+async function handleGET() {
+  // the audience works in Ledgerline; the real ERP is the presenter's (it is one shared system)
+  if (isVisitor()) return Response.json({ url: null, up: false, visitor: true, catalog: null, mirror: null });
   const d = db();
   const up = await fetch(`${ERPNEXT_URL}/api/method/ping`).then((r) => r.ok).catch(() => false);
   return Response.json({
@@ -15,7 +18,8 @@ export async function GET() {
   });
 }
 
-export async function POST(req: Request) {
+async function handlePOST(req: Request) {
+  if (isVisitor()) return Response.json({ ok: false, error: "ERPNext is presenter-only" }, { status: 403 });
   const { action } = (await req.json()) as { action: "sync" | "reset" | "training" };
   try {
     // reset: a fresh month-end queue for Capture · training: the same plus the cases for Teach
@@ -26,3 +30,6 @@ export async function POST(req: Request) {
     return Response.json({ ok: false, error: (e as Error).message }, { status: 502 });
   }
 }
+
+export const GET = withWorkspace(handleGET);
+export const POST = withWorkspace(handlePOST);
